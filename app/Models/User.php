@@ -6,6 +6,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class User extends Authenticatable
 {
@@ -18,8 +19,10 @@ class User extends Authenticatable
      */
     protected $fillable = [
         'name',
+        'username', // Ditambahkan untuk login manual
         'email',
         'password',
+        'role',     // Ditambahkan untuk otorisasi admin/user
     ];
 
     /**
@@ -43,5 +46,19 @@ class User extends Authenticatable
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
         ];
+    }
+
+    // --- Relasi ---
+
+    // 1 User bisa memiliki banyak riwayat peminjaman (One-to-Many)
+    public function loans(): HasMany
+    {
+        return $this->hasMany(Loan::class);
+    }
+
+    // 1 User bisa memiliki banyak catatan aktivitas (One-to-Many)
+    public function activityLogs(): HasMany
+    {
+        return $this->hasMany(ActivityLog::class);
     }
 }

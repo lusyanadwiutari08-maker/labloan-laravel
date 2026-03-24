@@ -1,7 +1,8 @@
 <?php
 
-use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AuthController;
+use App\Http\Controllers\UserController;
+use Illuminate\Support\Facades\Route;
 
 Route::get('/', function () {
     return redirect('/login');
@@ -27,10 +28,12 @@ Route::middleware('auth')->group(function () {
         return view('index');
     })->name('dashboard');
 
+
+
     // Route Khusus Admin (Akses Dibatasi Middleware)
     Route::middleware('role:admin')->prefix('admin')->group(function () {
-        // Nanti route CRUD barang taruh di sini
-        // Contoh: Route::resource('items', ItemController::class);
+        // CRUD Manajemen User
+        Route::resource('users', UserController::class);
     });
 
     // Route Khusus User/Peminjam (Akses Dibatasi Middleware)

@@ -26,10 +26,8 @@ class AuthController extends Controller
         if (Auth::attempt($credentials, $remember)) {
             $request->session()->regenerate();
             
-            if (Auth::user()->role === 'admin') {
-                return redirect()->intended('admin/dashboard');
-            }
-            return redirect()->intended('user/dashboard');
+            // Langsung arahkan ke satu dashboard, role akan dicek di dalam view Blade
+            return redirect()->intended('/dashboard');
         }
 
         return back()->withErrors(['username' => 'Username atau password salah.'])->onlyInput('username');
@@ -45,14 +43,14 @@ class AuthController extends Controller
         $request->validate([
             'name' => ['required', 'string', 'max:255'],
             'username' => ['required', 'string', 'max:255', 'unique:users'],
-            'password' => ['required', 'string', 'min:6', 'confirmed'], // Ini butuh name="password_confirmation" di form
+            'password' => ['required', 'string', 'min:6', 'confirmed'],
         ]);
 
         // Simpan ke database dengan role 'user' secara default
         $user = User::create([
             'name' => $request->name,
             'username' => $request->username,
-            'email' => $request->username . '@lab.local', // Dummy email sementara jika diperlukan
+            'email' => $request->username . '@lab.local',
             'password' => Hash::make($request->password),
             'role' => 'user', 
         ]);
@@ -60,7 +58,8 @@ class AuthController extends Controller
         // Otomatis login setelah register
         Auth::login($user);
 
-        return redirect('/user/dashboard');
+        // Arahkan ke dashboard utama
+        return redirect('/dashboard');
     }
 
     // --- Logout ---

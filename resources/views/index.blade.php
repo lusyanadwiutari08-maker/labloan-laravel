@@ -1,31 +1,42 @@
 @extends('layouts.app')
 
-@section('title', 'Dashboard Admin - LabLoans')
+@section('title', 'Dashboard - LabLoans')
 
 @section('content')
 <div class="max-w-[1600px] mx-auto space-y-6">
     
     <div class="relative overflow-hidden rounded-xl bg-gradient-to-r from-[#233648] to-[#111a22] dark:from-[#1F2937] dark:to-[#111827] border border-slate-200 dark:border-border-dark p-6 sm:p-10 shadow-sm">
         <div class="relative z-10 max-w-2xl">
-            <h1 class="text-3xl font-bold text-white mb-2">Halo {{ Auth::user()->name }}, Selamat Datang Kembali!</h1>
-            <p class="text-slate-300 text-lg">Tinjau aktivitas laboratorium dan kelola permintaan peminjaman hari ini.</p>
-            <div class="mt-6 flex flex-wrap gap-3">
-                <a href="{{ route('admin.loans.index') }}" class="px-5 py-2.5 bg-primary hover:bg-primary-dark text-white font-semibold rounded-lg shadow-lg shadow-primary/30 transition-all flex items-center gap-2">
-                    <span class="material-symbols-outlined text-[20px]">list_alt</span>
-                    Kelola Peminjaman
-                </a>
-                <a href="{{ route('items.index') }}" class="px-5 py-2.5 bg-slate-700/50 hover:bg-slate-700 text-white font-semibold rounded-lg border border-slate-600 transition-all flex items-center gap-2">
-                    Kelola Inventaris
-                </a>
-            </div>
+            <h1 class="text-3xl font-bold text-white mb-2">Halo {{ Auth::user()->name }}, Selamat Datang!</h1>
+            
+            @if(Auth::user()->role === 'admin')
+                <p class="text-slate-300 text-lg">Tinjau aktivitas laboratorium dan kelola permintaan peminjaman hari ini.</p>
+                <div class="mt-6 flex flex-wrap gap-3">
+                    <a href="{{ route('admin.loans.index') }}" class="px-5 py-2.5 bg-primary hover:bg-primary-dark text-white font-semibold rounded-lg shadow-lg shadow-primary/30 transition-all flex items-center gap-2">
+                        <span class="material-symbols-outlined text-[20px]">list_alt</span>
+                        Kelola Peminjaman
+                    </a>
+                    <a href="{{ route('items.index') }}" class="px-5 py-2.5 bg-slate-700/50 hover:bg-slate-700 text-white font-semibold rounded-lg border border-slate-600 transition-all flex items-center gap-2">
+                        Kelola Inventaris
+                    </a>
+                </div>
+            @else
+                <p class="text-slate-300 text-lg">Siap untuk praktikum? Scan QR code alat lab untuk meminjam dengan cepat.</p>
+                <div class="mt-6 flex flex-wrap gap-3">
+                    <button class="px-5 py-2.5 bg-primary hover:bg-primary-dark text-white font-semibold rounded-lg shadow-lg shadow-primary/30 transition-all flex items-center gap-2">
+                        <span class="material-symbols-outlined text-[20px]">qr_code_scanner</span>
+                        Mulai Scan QR
+                    </button>
+                </div>
+            @endif
+            
         </div>
         <div class="absolute right-0 top-0 h-full w-1/3 opacity-20 pointer-events-none bg-[url('https://images.unsplash.com/photo-1532094349884-543bc11b234d?q=80&w=2070&auto=format&fit=crop')] bg-cover bg-center mix-blend-overlay"></div>
     </div>
 
+    @if(Auth::user()->role === 'admin')
     <div class="grid grid-cols-1 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-        
         <div class="lg:col-span-2 xl:col-span-3 space-y-6">
-            
             <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
                 <div class="bg-white dark:bg-[#1F2937] p-5 rounded-xl border border-slate-200 dark:border-border-dark shadow-sm flex flex-col justify-between h-32 group hover:border-primary/50 transition-colors">
                     <div class="flex justify-between items-start">
@@ -108,7 +119,6 @@
                             </tr>
                         </thead>
                         <tbody class="divide-y divide-slate-200 dark:divide-border-dark">
-                            
                             @forelse($latestLoans ?? [] as $loan)
                                 @php
                                     $isOverdue = $loan->status === 'active' && \Carbon\Carbon::now()->greaterThan($loan->return_date);
@@ -157,7 +167,6 @@
                                     <td colspan="4" class="px-6 py-8 text-center text-slate-500">Belum ada peminjaman terbaru.</td>
                                 </tr>
                             @endforelse
-                            
                         </tbody>
                     </table>
                 </div>
@@ -165,7 +174,6 @@
         </div>
 
         <div class="lg:col-span-1 space-y-6">
-            
             <div class="bg-white dark:bg-[#1F2937] rounded-xl border border-slate-200 dark:border-border-dark shadow-sm p-5">
                 <div class="flex justify-between items-center mb-4">
                     <h3 class="font-bold text-slate-800 dark:text-white">Pemberitahuan Sistem</h3>
@@ -179,24 +187,6 @@
                         <div>
                             <p class="text-sm text-slate-800 dark:text-white leading-snug">Fitur <span class="font-semibold">Activity Logs</span> akan segera diintegrasikan di sini.</p>
                             <p class="text-xs text-slate-500 mt-0.5">Sistem Info</p>
-                        </div>
-                    </div>
-                    <div class="flex gap-3 opacity-60">
-                        <div class="flex-shrink-0 w-8 h-8 rounded-full bg-orange-100 dark:bg-orange-900/30 text-orange-600 dark:text-orange-400 flex items-center justify-center">
-                            <span class="material-symbols-outlined text-[18px]">person_add</span>
-                        </div>
-                        <div>
-                            <p class="text-sm text-slate-800 dark:text-white leading-snug">Registrasi user baru: <span class="font-semibold">Mahasiswa S2</span></p>
-                            <p class="text-xs text-slate-500 mt-0.5">30 menit yang lalu</p>
-                        </div>
-                    </div>
-                    <div class="flex gap-3 opacity-60">
-                        <div class="flex-shrink-0 w-8 h-8 rounded-full bg-red-100 dark:bg-red-900/30 text-red-600 dark:text-red-400 flex items-center justify-center">
-                            <span class="material-symbols-outlined text-[18px]">report_problem</span>
-                        </div>
-                        <div>
-                            <p class="text-sm text-slate-800 dark:text-white leading-snug">Laporan kerusakan: Mikroskop Lab 3</p>
-                            <p class="text-xs text-slate-500 mt-0.5">1 hari yang lalu</p>
                         </div>
                     </div>
                 </div>
@@ -250,8 +240,45 @@
                     + Tambah Alat Lab
                 </a>
             </div>
-
         </div>
     </div>
+
+    @else
+    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+        <div class="bg-white dark:bg-[#1F2937] p-5 rounded-xl border border-slate-200 dark:border-border-dark border-l-4 border-l-primary shadow-sm flex items-center gap-4">
+            <div class="p-3 bg-blue-50 dark:bg-blue-900/20 rounded-full text-primary">
+                <span class="material-symbols-outlined text-3xl">science</span>
+            </div>
+            <div>
+                <p class="text-sm font-medium text-slate-500">Sedang Dipinjam</p>
+                <h3 class="text-2xl font-bold text-slate-800 dark:text-white">{{ $activeLoansCount ?? 0 }} Alat</h3>
+            </div>
+        </div>
+
+        <div class="bg-white dark:bg-[#1F2937] p-5 rounded-xl border border-slate-200 dark:border-border-dark border-l-4 border-l-green-500 shadow-sm flex items-center gap-4">
+            <div class="p-3 bg-green-50 dark:bg-green-900/20 rounded-full text-green-500">
+                <span class="material-symbols-outlined text-3xl">history</span>
+            </div>
+            <div>
+                <p class="text-sm font-medium text-slate-500">Total Riwayat</p>
+                <h3 class="text-2xl font-bold text-slate-800 dark:text-white">{{ $totalHistoryCount ?? 0 }} Peminjaman</h3>
+            </div>
+        </div>
+    </div>
+    
+    <div class="mt-8 bg-white dark:bg-[#1F2937] rounded-xl border border-slate-200 dark:border-border-dark shadow-sm overflow-hidden flex flex-col">
+        <div class="p-6 border-b border-slate-200 dark:border-border-dark flex justify-between items-center">
+            <h3 class="text-lg font-bold text-slate-800 dark:text-white flex items-center gap-2">
+                <span class="material-symbols-outlined text-primary">history</span>
+                Aktivitas Peminjaman Anda
+            </h3>
+        </div>
+        <div class="p-6 text-center text-slate-500 dark:text-slate-400">
+            <span class="material-symbols-outlined text-4xl mb-2 opacity-30">pending_actions</span>
+            <p>Anda dapat melihat riwayat alat yang Anda pinjam di menu Laporan.</p>
+        </div>
+    </div>
+    @endif
+
 </div>
 @endsection

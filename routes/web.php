@@ -3,6 +3,7 @@
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\ItemController;
+use App\Http\Controllers\LoanController;
 use App\Http\Controllers\UserController;
 use Illuminate\Support\Facades\Route;
 
@@ -19,6 +20,11 @@ Route::middleware('guest')->group(function () {
     Route::get('/register', [AuthController::class, 'showRegisterForm'])->name('register');
     Route::post('/register', [AuthController::class, 'register']);
 });
+
+
+// ROUTE PUBLIK QUICK LOAN (SCAN QR)
+Route::get('/scan/{item_code}', [LoanController::class, 'scan'])->name('quick-loan.scan');
+Route::post('/scan/process', [LoanController::class, 'store'])->name('quick-loan.store');
 
 // Route Harus Login
 Route::middleware('auth')->group(function () {
@@ -45,3 +51,4 @@ Route::middleware('auth')->group(function () {
         // Contoh: Route::get('/history', [LoanController::class, 'userHistory']);
     });
 });
+

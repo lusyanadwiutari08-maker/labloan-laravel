@@ -39,7 +39,8 @@ class ItemController extends Controller
         $item = Item::create($validated);
 
         // 3. GENERATE QR CODE
-        $scanUrl = url('/user/scan/' . $item->item_code);
+        // Menggunakan route name agar otomatis menyesuaikan dengan web.php
+        $scanUrl = route('quick-loan.scan', $item->item_code);
         $fileName = 'qrcodes/' . $item->item_code . '.svg';
 
         if (!Storage::disk('public')->exists('qrcodes')) {

@@ -59,7 +59,6 @@
                     <tr>
                         <th class="px-6 py-4">Kode Item</th>
                         <th class="px-6 py-4">Nama & Deskripsi</th>
-                    
                         <th class="px-6 py-4">Status</th>
                         <th class="px-6 py-4 text-center">QR Code</th>
                         <th class="px-6 py-4 text-right">Aksi</th>
@@ -82,8 +81,6 @@
                             </div>
                         </td>
                         
-
-                        
                         <td class="px-6 py-4">
                             @if ($item->status === 'available')
                                 <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400 border border-green-200 dark:border-green-800">
@@ -103,8 +100,8 @@
                         <td class="px-6 py-4">
                             @if ($item->qr_code_path)
                                 <div class="flex flex-col items-center gap-2">
-                                    <div class="p-1 bg-white border border-slate-200 rounded-lg shadow-sm">
-                                        <img src="{{ asset('storage/' . $item->qr_code_path) }}" alt="QR Code" class="w-12 h-12 object-contain">
+                                    <div onclick="openQrModal('{{ asset('storage/' . $item->qr_code_path) }}', '{{ $item->item_code }}')" class="p-1 bg-white border border-slate-200 rounded-lg shadow-sm cursor-pointer hover:border-primary hover:shadow-md transition-all group" title="Klik untuk perbesar">
+                                        <img src="{{ asset('storage/' . $item->qr_code_path) }}" alt="QR Code" class="w-12 h-12 object-contain group-hover:scale-105 transition-transform">
                                     </div>
                                     <a href="{{ asset('storage/' . $item->qr_code_path) }}" download="QR-{{ $item->item_code }}.svg" class="inline-flex items-center gap-1 text-[10px] font-bold text-primary hover:text-primary-dark transition-colors bg-primary/10 hover:bg-primary/20 px-2 py-1 rounded">
                                         <span class="material-symbols-outlined text-[14px]">download</span>
@@ -137,7 +134,7 @@
                     </tr>
                     @empty
                     <tr>
-                        <td colspan="6" class="px-6 py-12 text-center text-slate-500 dark:text-slate-400">
+                        <td colspan="5" class="px-6 py-12 text-center text-slate-500 dark:text-slate-400">
                             <span class="material-symbols-outlined text-5xl opacity-20 block mb-2">inventory_2</span>
                             Belum ada alat laboratorium yang terdaftar.
                         </td>
@@ -156,11 +153,40 @@
     </div>
 </div>
 
-<div id="deleteModal" class="fixed inset-0 z-[100] hidden overflow-y-auto" aria-labelledby="modal-title" role="dialog" aria-modal="true">
-    <div class="fixed inset-0 bg-slate-900/40 backdrop-blur-md transition-opacity"></div>
+<div id="qrModal" class="fixed inset-0 z-[110] hidden overflow-y-auto" aria-labelledby="modal-title" role="dialog" aria-modal="true">
+    <div class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm transition-opacity" onclick="closeQrModal()"></div>
 
-    <div class="flex min-h-full items-end justify-center p-4 text-center sm:items-center sm:p-0">
-        <div class="relative transform overflow-hidden rounded-2xl bg-white dark:bg-[#1F2937] text-left shadow-2xl transition-all sm:my-8 sm:w-full sm:max-w-lg border border-slate-200 dark:border-border-dark">
+    <div class="flex min-h-full items-center justify-center p-4 text-center sm:p-0 pointer-events-none">
+        <div class="relative transform overflow-hidden rounded-3xl bg-white dark:bg-[#1F2937] text-left shadow-2xl transition-all sm:my-8 sm:w-full sm:max-w-sm border border-slate-200 dark:border-border-dark pointer-events-auto">
+            
+            <div class="absolute right-0 top-0 hidden pr-4 pt-4 sm:block z-10">
+                <button type="button" onclick="closeQrModal()" class="rounded-full p-1 bg-slate-100 dark:bg-slate-800 text-slate-400 hover:text-slate-600 dark:hover:text-white hover:bg-slate-200 dark:hover:bg-slate-700 focus:outline-none transition-all">
+                    <span class="sr-only">Tutup</span>
+                    <span class="material-symbols-outlined text-[20px]">close</span>
+                </button>
+            </div>
+
+            <div class="p-8 text-center">
+                <h3 class="text-xl font-bold text-slate-900 dark:text-white mb-6 font-mono tracking-tight" id="qrModalTitle">QR Code</h3>
+                
+                <div class="bg-white p-4 rounded-2xl shadow-inner border-2 border-slate-100 dark:border-slate-700 inline-block relative">
+                    <img id="qrModalImage" src="" alt="QR Code Besar" class="w-64 h-64 object-contain">
+                </div>
+                
+                <p class="mt-6 text-sm text-slate-500 dark:text-slate-400 flex items-center justify-center gap-2">
+                    <span class="material-symbols-outlined text-[18px] text-primary">qr_code_scanner</span>
+                    Arahkan kamera ke kode di atas
+                </p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div id="deleteModal" class="fixed inset-0 z-[100] hidden overflow-y-auto" aria-labelledby="modal-title" role="dialog" aria-modal="true">
+    <div class="fixed inset-0 bg-slate-900/40 backdrop-blur-md transition-opacity" onclick="closeDeleteModal()"></div>
+
+    <div class="flex min-h-full items-end justify-center p-4 text-center sm:items-center sm:p-0 pointer-events-none">
+        <div class="relative transform overflow-hidden rounded-2xl bg-white dark:bg-[#1F2937] text-left shadow-2xl transition-all sm:my-8 sm:w-full sm:max-w-lg border border-slate-200 dark:border-border-dark pointer-events-auto">
             <div class="p-8">
                 <div class="sm:flex sm:items-start">
                     <div class="mx-auto flex h-14 w-14 flex-shrink-0 items-center justify-center rounded-2xl bg-red-100 dark:bg-red-500/10 text-red-600 dark:text-red-500 sm:mx-0 sm:h-12 sm:w-12 shadow-inner">
@@ -192,6 +218,7 @@
 
 @push('scripts')
 <script>
+    // --- LOGIKA MODAL HAPUS ---
     let itemIdToDelete = null;
 
     function openDeleteModal(id, name) {
@@ -216,10 +243,34 @@
         }
     }
 
-    window.addEventListener('click', function(event) {
-        const modal = document.getElementById('deleteModal');
-        if (event.target === modal) {
+    // --- LOGIKA MODAL PREVIEW QR CODE ---
+    function openQrModal(imageUrl, itemCode) {
+        // Set gambar dan judul
+        document.getElementById('qrModalImage').src = imageUrl;
+        document.getElementById('qrModalTitle').innerText = itemCode;
+        
+        // Tampilkan modal
+        const modal = document.getElementById('qrModal');
+        modal.classList.remove('hidden');
+        document.body.classList.add('overflow-hidden');
+    }
+
+    function closeQrModal() {
+        const modal = document.getElementById('qrModal');
+        modal.classList.add('hidden');
+        document.body.classList.remove('overflow-hidden');
+        
+        // Bersihkan gambar agar tidak berkedip saat membuka QR lain
+        setTimeout(() => {
+            document.getElementById('qrModalImage').src = '';
+        }, 300);
+    }
+
+    // Tombol ESC untuk menutup modal apa pun
+    document.addEventListener('keydown', function(event) {
+        if (event.key === "Escape") {
             closeDeleteModal();
+            closeQrModal();
         }
     });
 </script>

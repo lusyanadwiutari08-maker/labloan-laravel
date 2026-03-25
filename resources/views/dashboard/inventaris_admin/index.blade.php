@@ -59,7 +59,7 @@
                     <tr>
                         <th class="px-6 py-4">Kode Item</th>
                         <th class="px-6 py-4">Nama & Deskripsi</th>
-                        <th class="px-6 py-4 text-center">Stok</th>
+                    
                         <th class="px-6 py-4">Status</th>
                         <th class="px-6 py-4 text-center">QR Code</th>
                         <th class="px-6 py-4 text-right">Aksi</th>
@@ -82,9 +82,7 @@
                             </div>
                         </td>
                         
-                        <td class="px-6 py-4 text-center font-bold text-slate-700 dark:text-slate-200">
-                            {{ $item->stock }}
-                        </td>
+
                         
                         <td class="px-6 py-4">
                             @if ($item->status === 'available')

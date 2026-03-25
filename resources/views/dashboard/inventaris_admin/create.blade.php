@@ -44,19 +44,14 @@
                     <div class="space-y-2">
                         <label class="text-sm font-semibold text-slate-700 dark:text-slate-300" for="item_code">Kode / ID Alat (Unik)</label>
                         <div class="relative">
-                            <input name="item_code" value="{{ old('item_code') }}" class="w-full px-4 py-2.5 bg-white dark:bg-slate-800/50 border border-slate-200 dark:border-slate-700 rounded-lg dark:text-white form-input-focus" id="item_code" placeholder="Kosongkan untuk auto-generate" type="text"/>
-                            <button onclick="generateRandomID()" class="absolute right-2 top-2 p-1 text-primary hover:text-primary-dark transition-colors bg-white dark:bg-slate-800 rounded" title="Generate ID Acak" type="button">
+                            <input name="item_code" value="{{ old('item_code') }}" class="w-full px-4 py-2.5 bg-white dark:bg-slate-800/50 border border-slate-200 dark:border-slate-700 rounded-lg dark:text-white form-input-focus font-mono" id="item_code" placeholder="Kosongkan untuk auto-generate" type="text"/>
+                            
+                            <button onclick="generateRandomID()" class="absolute right-2 top-2 p-1 text-primary hover:text-primary-dark transition-colors bg-white dark:bg-slate-800 rounded shadow-sm" title="Generate ID Acak" type="button">
                                 <span class="material-symbols-outlined text-[20px]">refresh</span>
                             </button>
                         </div>
                         <p class="text-[10px] text-slate-500 mt-1">Kode ini akan menjadi dasar identifikasi pada QR Code.</p>
                         @error('item_code') <span class="text-xs text-red-500">{{ $message }}</span> @enderror
-                    </div>
-
-                    <div class="space-y-2">
-                        <label class="text-sm font-semibold text-slate-700 dark:text-slate-300" for="stock">Stok Tersedia</label>
-                        <input name="stock" value="{{ old('stock', 1) }}" min="1" class="w-full px-4 py-2.5 bg-white dark:bg-slate-800/50 border border-slate-200 dark:border-slate-700 rounded-lg dark:text-white form-input-focus" id="stock" placeholder="Jumlah stok..." type="number" required/>
-                        @error('stock') <span class="text-xs text-red-500">{{ $message }}</span> @enderror
                     </div>
 
                     <div class="space-y-3">
@@ -65,7 +60,7 @@
                             <label class="flex-1 relative cursor-pointer group">
                                 <input type="radio" name="status" value="available" class="peer hidden" {{ old('status', 'available') == 'available' ? 'checked' : '' }}/>
                                 <div class="h-full flex items-center justify-center gap-2 p-3 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800/30 transition-all group-hover:border-primary/50 peer-checked:bg-primary/10 peer-checked:border-primary">
-                                    <span class="material-symbols-outlined text-green-500 group-hover:scale-110 transition-transform">check_circle</span>
+                                    <span class="material-symbols-outlined text-green-500">check_circle</span>
                                     <span class="text-sm font-bold text-slate-600 dark:text-slate-300">Tersedia</span>
                                 </div>
                             </label>
@@ -73,14 +68,14 @@
                             <label class="flex-1 relative cursor-pointer group">
                                 <input type="radio" name="status" value="maintenance" class="peer hidden" {{ old('status') == 'maintenance' ? 'checked' : '' }}/>
                                 <div class="h-full flex items-center justify-center gap-2 p-3 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800/30 transition-all group-hover:border-red-500/50 peer-checked:bg-red-500/10 peer-checked:border-red-500">
-                                    <span class="material-symbols-outlined text-red-500 group-hover:scale-110 transition-transform">build</span>
+                                    <span class="material-symbols-outlined text-red-500">build</span>
                                     <span class="text-sm font-bold text-slate-600 dark:text-slate-300">Perbaikan</span>
                                 </div>
                             </label>
                         </div>
                         @error('status') <span class="text-xs text-red-500">{{ $message }}</span> @enderror
                     </div>
-                    </div>
+                </div>
 
                 <div class="space-y-6">
                     <div class="space-y-2">
@@ -98,7 +93,7 @@
                         </div>
                         <div>
                             <h4 class="text-sm font-bold text-slate-800 dark:text-white">QR Code Otomatis</h4>
-                            <p class="text-xs text-slate-500 dark:text-slate-400 mt-1">QR Code akan diperbarui secara otomatis setelah data alat ini disimpan ke dalam sistem.</p>
+                            <p class="text-xs text-slate-500 dark:text-slate-400 mt-1">QR Code akan diperbarui secara otomatis setelah data disimpan.</p>
                         </div>
                     </div>
                 </div>
@@ -115,16 +110,6 @@
             </form>
         </div>
     </div>
-    
-    <div class="mt-8 flex items-start gap-4 p-4 rounded-xl bg-blue-500/5 border border-blue-500/10">
-        <span class="material-symbols-outlined text-primary">info</span>
-        <div>
-            <h5 class="text-sm font-bold text-slate-800 dark:text-slate-200">Tips Input</h5>
-            <p class="text-xs text-slate-500 dark:text-slate-400 mt-1 leading-relaxed">
-                Pastikan ID Alat bersifat unik untuk memudahkan pelacakan sistem. QR Code akan mengarah langsung ke halaman peminjaman alat ini saat di-scan oleh mahasiswa.
-            </p>
-        </div>
-    </div>
 </div>
 @endsection
 
@@ -136,14 +121,23 @@
     }
 </style>
 <script>
-    // Fungsi untuk membuat ID Acak jika Admin malas mengetik manual
+    /**
+     * Fungsi untuk menghasilkan Kode Alat acak (contoh: LAB-XJ29A1)
+     */
     function generateRandomID() {
         const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
         let result = 'LAB-';
         for (let i = 0; i < 6; i++) {
             result += chars.charAt(Math.floor(Math.random() * chars.length));
         }
-        document.getElementById('item_code').value = result;
+        
+        // Memasukkan hasil ke input dengan id="item_code"
+        const inputField = document.getElementById('item_code');
+        if (inputField) {
+            inputField.value = result;
+        } else {
+            console.error("Input field item_code tidak ditemukan!");
+        }
     }
 </script>
 @endpush

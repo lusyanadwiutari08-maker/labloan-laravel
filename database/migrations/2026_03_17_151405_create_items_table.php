@@ -11,16 +11,15 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('items', function (Blueprint $table) {
-            $table->id();
-            $table->string('item_code')->unique();
-            $table->string('name');
-            $table->text('description')->nullable();
-            $table->integer('stock')->default(1);
-            $table->string('qr_code_path')->nullable();
-            $table->enum('status', ['available', 'maintenance', 'borrowed'])->default('available');
-            $table->timestamps();
-        });
+Schema::create('items', function (Blueprint $table) {
+    $table->id();
+    $table->string('item_code')->unique();
+    $table->string('name');
+    $table->text('description')->nullable();
+    $table->string('qr_code_path')->nullable();
+    $table->enum('status', ['available', 'maintenance', 'borrowed'])->default('available');
+    $table->timestamps();
+});
     }
 
     /**

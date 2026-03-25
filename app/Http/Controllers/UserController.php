@@ -15,8 +15,10 @@ class UserController extends Controller
      */
     public function index()
     {
-        // Mengambil user di mana role BUKAN admin, diurutkan dari yang terbaru, lalu dipaginasi (10 per halaman)
-        $users = User::where('role', '!=', 'admin')->latest()->paginate(10);
+        // Mengambil semua user kecuali user yang sedang login, diurutkan dari yang terbaru, lalu dipaginasi (10 per halaman)
+        $users = User::where('id', '!=', Auth::id())
+            ->latest()
+            ->paginate(10);
 
         return view('dashboard.users.index', compact('users'));
     }

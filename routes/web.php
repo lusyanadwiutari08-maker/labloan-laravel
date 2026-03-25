@@ -1,6 +1,8 @@
 <?php
 
 use App\Http\Controllers\AuthController;
+use App\Http\Controllers\DashboardController;
+use App\Http\Controllers\ItemController;
 use App\Http\Controllers\UserController;
 use Illuminate\Support\Facades\Route;
 
@@ -23,10 +25,8 @@ Route::middleware('auth')->group(function () {
     // Logout menggunakan POST demi keamanan (sesuai form di Blade)
     Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
 
-    // SATU ROUTE DASHBOARD UNTUK SEMUA ROLE
-    Route::get('/dashboard', function () {
-        return view('index');
-    })->name('dashboard');
+    // SATU ROUTE DASHBOARD UNTUK SEMUA ROLE (Sekarang menggunakan Controller)
+    Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
 
 
 
@@ -34,6 +34,9 @@ Route::middleware('auth')->group(function () {
     Route::middleware('role:admin')->prefix('admin')->group(function () {
         // CRUD Manajemen User
         Route::resource('users', UserController::class);
+
+        // BARU: CRUD Manajemen Inventaris (Menangani halaman index, create, store, dll)
+        Route::resource('items', ItemController::class);
     });
 
     // Route Khusus User/Peminjam (Akses Dibatasi Middleware)

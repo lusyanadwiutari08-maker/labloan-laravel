@@ -143,7 +143,7 @@
             </div>
             
             <div class="bg-slate-50 dark:bg-[#111827]/40 px-8 py-5 flex flex-col sm:flex-row-reverse gap-3 border-t border-slate-100 dark:border-border-dark/50">
-                <button type="button" id="confirmDeleteBtn" class="inline-flex w-full justify-center rounded-xl bg-red-600 px-6 py-3 text-sm font-bold text-white shadow-lg shadow-red-600/20 hover:bg-red-700 transition-all sm:w-auto">
+                <button type="button" onclick="submitDeleteForm()" class="inline-flex w-full justify-center rounded-xl bg-red-600 px-6 py-3 text-sm font-bold text-white shadow-lg shadow-red-600/20 hover:bg-red-700 transition-all sm:w-auto">
                     Ya, Hapus Permanen
                 </button>
                 <button type="button" onclick="closeDeleteModal()" class="inline-flex w-full justify-center rounded-xl bg-white dark:bg-slate-800 px-6 py-3 text-sm font-bold text-slate-700 dark:text-slate-300 border border-slate-200 dark:border-border-dark hover:bg-slate-100 dark:hover:bg-slate-700 transition-all sm:w-auto">
@@ -176,14 +176,15 @@
         userIdToDelete = null;
     }
 
-    // Eksekusi Hapus
-    document.getElementById('confirmDeleteBtn').addEventListener('click', function() {
+    // Fungsi Eksekusi Hapus yang BARU
+    function submitDeleteForm() {
         if (userIdToDelete) {
+            // Mencari form yang sesuai dengan ID user, lalu men-submitnya
             document.getElementById('delete-form-' + userIdToDelete).submit();
         }
-    });
+    }
 
-    // Close modal if user clicks outside of it
+    // Menutup modal jika area di luar kotak modal diklik
     window.addEventListener('click', function(event) {
         const modal = document.getElementById('deleteModal');
         if (event.target === modal) {

@@ -13,7 +13,7 @@
         </div>
 
         <nav class="flex flex-col gap-2">
-            <a class="flex items-center gap-3 px-3 py-2.5 rounded-lg bg-primary/10 dark:bg-[#233648] text-primary dark:text-white group transition-colors" href="/dashboard">
+            <a  class="flex items-center gap-3 px-3 py-2.5 rounded-lg bg-primary/10 dark:bg-[#233648] text-primary dark:text-white group transition-colors" href="/dashboard">
                 <span class="material-symbols-outlined text-primary dark:text-white group-hover:scale-110 transition-transform">dashboard</span>
                 <span class="text-sm font-semibold">Dashboard</span>
             </a>
@@ -27,7 +27,7 @@
                     <span class="material-symbols-outlined group-hover:scale-110 transition-transform">list_alt</span>
                     <span class="text-sm font-medium">Semua Peminjaman</span>
                 </a>
-                <a class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-[#1e2a35] hover:text-slate-900 dark:hover:text-white transition-colors group" href="#">
+                <a href="{{ route('users.index') }}" class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-[#1e2a35] hover:text-slate-900 dark:hover:text-white transition-colors group" href="#">
                     <span class="material-symbols-outlined group-hover:scale-110 transition-transform">people</span>
                     <span class="text-sm font-medium">Manajemen User</span>
                 </a>

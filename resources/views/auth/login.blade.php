@@ -8,7 +8,11 @@
     <link href="https://fonts.googleapis.com" rel="preconnect"/>
     <link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
     <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@300;400;500;600;700;800&display=swap" rel="stylesheet"/>
+    
     <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    
+    <script src="https://unpkg.com/html5-qrcode" type="text/javascript"></script>
+
     <script id="tailwind-config">
         tailwind.config = {
             darkMode: "class",
@@ -32,6 +36,12 @@
         ::-webkit-scrollbar-track { background: #111a22; }
         ::-webkit-scrollbar-thumb { background: #324d67; border-radius: 4px; }
         ::-webkit-scrollbar-thumb:hover { background: #476c8f; }
+        
+        /* Modifikasi CSS bawaan html5-qrcode agar lebih rapi */
+        #reader { border: none !important; border-radius: 12px; overflow: hidden; }
+        #reader__dashboard_section_csr span { color: #94a3b8 !important; }
+        #reader__dashboard_section_swaplink { color: #137fec !important; text-decoration: none; font-weight: bold; }
+        #reader button { background-color: #137fec; color: white; border: none; padding: 6px 12px; border-radius: 6px; cursor: pointer; margin-top: 10px;}
     </style>
 </head>
 <body class="bg-background-light dark:bg-background-dark font-display text-slate-900 dark:text-slate-100 antialiased overflow-hidden">
@@ -103,14 +113,97 @@
                     <span>Masuk</span>
                     <span class="material-symbols-outlined text-lg transition-transform group-hover:translate-x-1">arrow_forward</span>
                 </button>
-
-                <p class="text-center text-sm text-slate-500 dark:text-slate-400 mt-6">
-                    Belum punya akun? 
-                    <a href="{{ route('register') }}" class="font-semibold text-primary hover:text-blue-400 transition-colors">Daftar</a>
-                </p>
             </form>
+
+            <div class="flex items-center justify-between my-6">
+                <hr class="w-full border-slate-300 dark:border-slate-700">
+                <span class="px-4 text-sm text-slate-500 dark:text-slate-400 font-medium">ATAU</span>
+                <hr class="w-full border-slate-300 dark:border-slate-700">
+            </div>
+
+            <button type="button" onclick="openQrScanner()" class="w-full bg-white dark:bg-white/5 border border-slate-200 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-white/10 text-slate-700 dark:text-slate-200 font-bold py-3.5 px-4 rounded-lg transition-all duration-300 flex items-center justify-center gap-2 group">
+                <span class="material-symbols-outlined text-primary text-xl group-hover:scale-110 transition-transform">qr_code_scanner</span>
+                <span>Pinjam Cepat via QR Alat</span>
+            </button>
+
+            <p class="text-center text-sm text-slate-500 dark:text-slate-400 mt-8">
+                Belum punya akun? 
+                <a href="{{ route('register') }}" class="font-semibold text-primary hover:text-blue-400 transition-colors">Daftar</a>
+            </p>
         </div>
     </div>
 </div>
+
+<div id="scannerModal" class="fixed inset-0 z-[100] hidden flex items-center justify-center bg-slate-900/80 backdrop-blur-sm transition-opacity">
+    <div class="relative bg-white dark:bg-[#101922] w-full max-w-md mx-4 rounded-2xl shadow-2xl border border-slate-200 dark:border-slate-700 overflow-hidden flex flex-col">
+        
+        <div class="flex items-center justify-between p-4 border-b border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-white/5">
+            <div class="flex items-center gap-2 text-slate-800 dark:text-white">
+                <span class="material-symbols-outlined text-primary">qr_code_scanner</span>
+                <h3 class="font-bold">Scan QR Alat</h3>
+            </div>
+            <button type="button" onclick="closeQrScanner()" class="text-slate-400 hover:text-red-500 transition-colors p-1">
+                <span class="material-symbols-outlined">close</span>
+            </button>
+        </div>
+
+        <div class="p-4 bg-slate-100 dark:bg-[#0b1218]">
+            <div id="reader" class="w-full rounded-xl bg-black"></div>
+            <p class="text-center text-xs text-slate-500 dark:text-slate-400 mt-4">
+                Arahkan kamera ke QR Code yang tertempel pada fisik alat laboratorium.
+            </p>
+        </div>
+    </div>
+</div>
+
+<script>
+    let html5QrcodeScanner;
+
+    function openQrScanner() {
+        // Tampilkan modal
+        document.getElementById('scannerModal').classList.remove('hidden');
+
+        // Inisialisasi Scanner
+        html5QrcodeScanner = new Html5QrcodeScanner(
+            "reader",
+            { 
+                fps: 10, 
+                qrbox: {width: 250, height: 250},
+                aspectRatio: 1.0,
+                showTorchButtonIfSupported: true 
+            },
+            /* verbose= */ false
+        );
+        
+        // Mulai render kamera
+        html5QrcodeScanner.render(onScanSuccess, onScanFailure);
+    }
+
+    function closeQrScanner() {
+        // Sembunyikan modal
+        document.getElementById('scannerModal').classList.add('hidden');
+        
+        // Matikan kamera agar tidak terus menyala di background
+        if (html5QrcodeScanner) {
+            html5QrcodeScanner.clear();
+        }
+    }
+
+    function onScanSuccess(decodedText, decodedResult) {
+        // Jika QR berhasil discan, hentikan kamera
+        if (html5QrcodeScanner) {
+            html5QrcodeScanner.clear();
+        }
+        
+        // Arahkan browser ke URL yang ada di dalam QR Code
+        // Karena QR code kita menyimpan URL lengkap seperti http://192.168.x.x:8000/scan/LAB-XXX
+        window.location.href = decodedText;
+    }
+
+    function onScanFailure(error) {
+        // Abaikan error ini. Ini wajar terjadi setiap detik saat kamera mencari QR Code
+        // console.warn(`Code scan error = ${error}`);
+    }
+</script>
 </body>
 </html>

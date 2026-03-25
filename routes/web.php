@@ -5,6 +5,7 @@ use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\ItemController;
 use App\Http\Controllers\LoanController;
 use App\Http\Controllers\UserController;
+use App\Http\Controllers\AdminReportController; 
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', function () {
@@ -40,9 +41,12 @@ Route::middleware('auth')->group(function () {
     Route::middleware('role:admin')->prefix('admin')->group(function () {
         // CRUD Manajemen User
         Route::resource('users', UserController::class);
-
         // BARU: CRUD Manajemen Inventaris (Menangani halaman index, create, store, dll)
         Route::resource('items', ItemController::class);
+        // --- RUTE MANAJEMEN PEMINJAMAN ---
+        Route::get('/loans', [AdminReportController::class, 'index'])->name('admin.loans.index');
+        Route::post('/loans/{id}/return', [AdminReportController::class, 'markAsReturned'])->name('admin.loans.return');
+        Route::delete('/loans/{id}', [AdminReportController::class, 'destroy'])->name('admin.loans.destroy');
     });
 
     // Route Khusus User/Peminjam (Akses Dibatasi Middleware)

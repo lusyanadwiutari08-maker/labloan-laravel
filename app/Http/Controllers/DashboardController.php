@@ -2,7 +2,9 @@
 
 namespace App\Http\Controllers;
 
-use Illuminate\Http\Request;
+use App\Models\Item;
+use App\Models\Loan;
+use App\Models\User;
 use Illuminate\Support\Facades\Auth;
 
 class DashboardController extends Controller
@@ -14,20 +16,47 @@ class DashboardController extends Controller
     {
         $user = Auth::user();
 
-        // Nanti kita bisa siapkan data yang berbeda berdasarkan Role
+        // 1. DATA UNTUK ADMIN
         if ($user->role === 'admin') {
             
-            // TODO: Tarik data statistik untuk Admin (Total User, Total Peminjaman, dll)
-            // Contoh: $totalUsers = \App\Models\User::count();
-
-            return view('index'); // Nanti jadi: return view('index', compact('totalUsers', ...));
+            // Tarik data statistik untuk Admin
+            $totalUsers       = User::count();
+            $activeLoans      = Loan::where('status', 'active')->count();
+            $maintenanceItems = Item::where('status', 'maintenance')->count();
+            $totalItems       = Item::count();
             
-        } else {
-            
-            // TODO: Tarik data khusus untuk User biasa (Barang yang sedang dipinjam, Riwayat)
-            // Contoh: $myActiveLoans = \App\Models\Loan::where('user_id', $user->id)->get();
+            // Ambil 5 peminjaman terbaru untuk tabel aktivitas admin
+            $latestLoans = Loan::with(['user', 'item'])->latest()->take(5)->get();
 
-            return view('index'); // Nanti jadi: return view('index', compact('myActiveLoans', ...));
+            // Pastikan nama view ('index') sesuai dengan struktur folder kamu
+            // Misal: return view('dashboard.index', compact(...));
+            return view('index', compact(
+                'totalUsers', 
+                'activeLoans', 
+                'maintenanceItems', 
+                'totalItems', 
+                'latestLoans'
+            ));
+            
+        } 
+        // 2. DATA UNTUK USER BIASA (MAHASISWA)
+        else {
+            
+            // Menghitung jumlah barang yang saat ini sedang dipinjam oleh user tersebut
+            $activeLoansCount = Loan::where('user_id', $user->id)
+                                    ->where('status', 'active')
+                                    ->count();
+            
+            // Menghitung total semua riwayat peminjaman yang pernah dilakukan user tersebut
+            $totalHistoryCount = Loan::where('user_id', $user->id)->count();
+
+            // (Opsional) Jika di dashboard user nanti ada tabel riwayat, gunakan ini:
+            // $myLatestLoans = Loan::with('item')->where('user_id', $user->id)->latest()->take(5)->get();
+
+            return view('index', compact(
+                'activeLoansCount', 
+                'totalHistoryCount'
+            ));
         }
     }
 }

@@ -17,6 +17,16 @@ class LoanController extends Controller
         return view('dashboard.laporan_user.scanner');
     }
 
+    public function borrowList(Request $request)
+    {
+        // Ambil data item, urutkan yang 'available' di atas, lalu paginasi
+        $items = Item::orderByRaw("FIELD(status, 'available') DESC")
+                     ->latest()
+                     ->paginate(12);
+
+        return view('dashboard.peminjaman_user.borrow_list', compact('items'));
+    }
+
     /**
      * Menampilkan halaman form peminjaman setelah QR di-scan
      */

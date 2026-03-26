@@ -53,6 +53,8 @@ Route::middleware('auth')->group(function () {
 
     // Route Khusus User/Peminjam (Akses Dibatasi Middleware)
     Route::middleware('role:user')->prefix('user')->group(function () {
+    // RUTE PEMINJAMAN MANUAL
+    Route::get('/borrow', [LoanController::class, 'borrowList'])->name('user.borrow.index');
     // RUTE RIWAYAT PEMINJAMAN USER
     Route::get('/my-loans', [UserHistoryController::class, 'index'])->name('user.loans.index');
     });

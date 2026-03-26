@@ -2,6 +2,18 @@
 
 @section('title', 'Peminjaman Alat - LabLoans')
 
+@push('styles')
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+<link rel="stylesheet" type="text/css" href="https://npmcdn.com/flatpickr/dist/themes/dark.css">
+<style>
+    /* Penyesuaian kursor agar terlihat bisa diklik */
+    .flatpickr-input[readonly] {
+        cursor: pointer !important;
+        background-color: transparent;
+    }
+</style>
+@endpush
+
 @section('content')
 <div class="max-w-[800px] mx-auto space-y-6">
     <div class="bg-white dark:bg-[#1F2937] p-6 sm:p-10 rounded-xl border border-slate-200 dark:border-border-dark shadow-sm">
@@ -29,12 +41,12 @@
             </div>
 
             <div>
-                <label class="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-2">Batas Waktu Pengembalian</label>
+                <label class="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-2">Batas Waktu Pengembalian <span class="text-red-500">*</span></label>
                 <div class="relative">
                     <span class="absolute inset-y-0 left-0 flex items-center pl-4 text-slate-400 pointer-events-none">
                         <span class="material-symbols-outlined">event</span>
                     </span>
-                    <input type="datetime-local" name="return_date" required min="{{ now()->format('Y-m-d\TH:i') }}" class="w-full py-3 pl-12 pr-4 text-slate-900 bg-slate-50 border border-slate-200 rounded-lg focus:ring-2 focus:ring-primary focus:border-primary dark:bg-[#111a22] dark:border-slate-800 dark:text-white transition-all">
+                    <input type="text" id="return_date_picker" name="return_date" required placeholder="Klik untuk memilih tanggal dan jam..." class="w-full py-3 pl-12 pr-4 text-slate-900 bg-slate-50 border border-slate-200 rounded-lg focus:ring-2 focus:ring-primary focus:border-primary dark:bg-[#111a22] dark:border-slate-800 dark:text-white transition-all bg-white">
                 </div>
             </div>
 
@@ -47,3 +59,22 @@
     </div>
 </div>
 @endsection
+
+@push('scripts')
+<script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+<script src="https://npmcdn.com/flatpickr/dist/l10n/id.js"></script>
+
+<script>
+    // Inisialisasi Flatpickr saat halaman dimuat
+    document.addEventListener('DOMContentLoaded', function() {
+        flatpickr("#return_date_picker", {
+            enableTime: true,           // Aktifkan pilihan jam & menit
+            dateFormat: "Y-m-d H:i",    // Format sesuai database
+            minDate: "today",           // Cegah memilih hari kemarin
+            time_24hr: true,            // Format 24 jam
+            locale: "id",               // Bahasa Indonesia
+            disableMobile: "true",      // Tetap gunakan desain web cantik di HP
+        });
+    });
+</script>
+@endpush

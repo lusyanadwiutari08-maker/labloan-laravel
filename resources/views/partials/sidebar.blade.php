@@ -58,6 +58,11 @@
                         Quick Loan</span>
                 </a>
 
+                <a href="{{ route('user.borrow.index') }}" class="flex items-center gap-3 px-3 py-2.5 rounded-lg group transition-colors {{ request()->routeIs('user.borrow.*') ? 'bg-primary/10 dark:bg-[#233648] text-primary dark:text-white' : 'text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-[#1e2a35] hover:text-slate-900 dark:hover:text-white' }}">
+                    <span class="material-symbols-outlined group-hover:scale-110 transition-transform {{ request()->routeIs('user.borrow.*') ? 'text-primary dark:text-white' : '' }}">add_shopping_cart</span>
+                    <span class="text-sm {{ request()->routeIs('user.borrow.*') ? 'font-semibold' : 'font-medium' }}">Pinjam Alat Manual</span>
+                </a>
+
                 <a href="{{ route('user.loans.index') }}"
                     class="flex items-center gap-3 px-3 py-2.5 rounded-lg group transition-colors {{ request()->routeIs('user.loans.index') ? 'bg-primary/10 dark:bg-[#233648] text-primary dark:text-white' : 'text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-[#1e2a35] hover:text-slate-900 dark:hover:text-white' }}">
                     <span

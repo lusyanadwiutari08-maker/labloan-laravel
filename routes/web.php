@@ -1,11 +1,12 @@
 <?php
 
+use App\Http\Controllers\AdminReportController; 
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\ItemController;
 use App\Http\Controllers\LoanController;
 use App\Http\Controllers\UserController;
-use App\Http\Controllers\AdminReportController; 
+use App\Http\Controllers\UserHistoryController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', function () {
@@ -51,8 +52,8 @@ Route::middleware('auth')->group(function () {
 
     // Route Khusus User/Peminjam (Akses Dibatasi Middleware)
     Route::middleware('role:user')->prefix('user')->group(function () {
-        // Nanti route history peminjaman user taruh di sini
-        // Contoh: Route::get('/history', [LoanController::class, 'userHistory']);
+    // RUTE RIWAYAT PEMINJAMAN USER
+    Route::get('/my-loans', [UserHistoryController::class, 'index'])->name('user.loans.index');
     });
 });
 

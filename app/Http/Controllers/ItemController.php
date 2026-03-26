@@ -23,7 +23,7 @@ class ItemController extends Controller
 
     public function store(Request $request)
     {
-        // 1. Validasi Input (Tanpa Stock)
+        // 1. Validasi Input
         $validated = $request->validate([
             'item_code'   => 'nullable|string|unique:items,item_code',
             'name'        => 'required|string|max:255',
@@ -39,14 +39,16 @@ class ItemController extends Controller
         $item = Item::create($validated);
 
         // 3. GENERATE QR CODE
-        // Menggunakan route name agar otomatis menyesuaikan dengan web.php
-        $scanUrl = route('quick-loan.scan', $item->item_code);
+        // Rute ini akan otomatis diarahkan ke LoanController@scan
+        // Di mana Controller tersebut sudah punya logika Auth::check()
+        $scanUrl = route('quick-loan.scan', ['item_code' => $item->item_code]);
         $fileName = 'qrcodes/' . $item->item_code . '.svg';
 
         if (!Storage::disk('public')->exists('qrcodes')) {
             Storage::disk('public')->makeDirectory('qrcodes');
         }
 
+        // Generate dan simpan QR Code
         QrCode::size(300)->margin(2)->generate($scanUrl, storage_path('app/public/' . $fileName));
 
         $item->update([
@@ -63,7 +65,6 @@ class ItemController extends Controller
 
     public function update(Request $request, Item $item)
     {
-        // Validasi tanpa Stock
         $validated = $request->validate([
             'name'        => 'required|string|max:255',
             'status'      => 'required|in:available,maintenance,borrowed',
@@ -78,6 +79,7 @@ class ItemController extends Controller
     public function destroy(Item $item)
     {
         try {
+            // Hapus file QR Code dari storage jika ada
             if ($item->qr_code_path && Storage::disk('public')->exists($item->qr_code_path)) {
                 Storage::disk('public')->delete($item->qr_code_path);
             }

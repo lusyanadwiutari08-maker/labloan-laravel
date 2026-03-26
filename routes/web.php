@@ -38,6 +38,7 @@ Route::middleware('auth')->group(function () {
 
 
 
+
     // Route Khusus Admin (Akses Dibatasi Middleware)
     Route::middleware('role:admin')->prefix('admin')->group(function () {
         // CRUD Manajemen User
@@ -55,5 +56,7 @@ Route::middleware('auth')->group(function () {
     // RUTE RIWAYAT PEMINJAMAN USER
     Route::get('/my-loans', [UserHistoryController::class, 'index'])->name('user.loans.index');
     });
+    // Rute Kamera Scanner Khusus User Login
+    Route::get('/scan-camera', [LoanController::class, 'scanner'])->name('scan.camera');
 });
 

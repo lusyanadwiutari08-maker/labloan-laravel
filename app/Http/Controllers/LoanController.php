@@ -4,14 +4,12 @@ namespace App\Http\Controllers;
 
 use App\Models\Item;
 use App\Models\Loan;
+use App\Models\ActivityLog; // <-- Tambahan
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
 class LoanController extends Controller
 {
-    /**
-     * Menampilkan halaman scanner kamera di dalam dashboard (Khusus User Login)
-     */
     public function scanner()
     {
         return view('dashboard.laporan_user.scanner');
@@ -19,7 +17,6 @@ class LoanController extends Controller
 
     public function borrowList(Request $request)
     {
-        // Ambil data item, urutkan yang 'available' di atas, lalu paginasi
         $items = Item::orderByRaw("FIELD(status, 'available') DESC")
                      ->latest()
                      ->paginate(12);
@@ -27,42 +24,30 @@ class LoanController extends Controller
         return view('dashboard.peminjaman_user.borrow_list', compact('items'));
     }
 
-    /**
-     * Menampilkan halaman form peminjaman setelah QR di-scan
-     */
     public function scan($item_code)
     {
-        // Cari alat berdasarkan kode dari QR
         $item = Item::where('item_code', $item_code)->firstOrFail();
 
-        // JIKA USER SUDAH LOGIN: Tampilkan form ringkas (tanpa input username/password)
         if (Auth::check()) {
             return view('dashboard.laporan_user.quick_loan_auth', compact('item'));
         }
 
-        // JIKA USER BELUM LOGIN (Publik): Tampilkan form lengkap seperti sebelumnya
         return view('dashboard.peminjaman_user.index', compact('item'));
     }
 
-    /**
-     * Memproses Peminjaman (Bisa untuk user login maupun publik)
-     */
     public function store(Request $request)
     {
-        // 1. Validasi dasar (berlaku untuk semua: login maupun publik)
         $request->validate([
             'item_id'     => 'required|exists:items,id',
             'return_date' => 'required|date|after:now',
         ]);
 
-        // 2. Jika user BELUM login, lakukan validasi form publik dan proses autentikasinya
         if (!Auth::check()) {
             $request->validate([
                 'username' => 'required|string',
                 'password' => 'required|string',
             ]);
 
-            // Coba login dengan data yang dimasukkan
             if (!Auth::attempt(['username' => $request->username, 'password' => $request->password])) {
                 $item = Item::find($request->item_id);
                 return view('dashboard.peminjaman_user.error', [
@@ -73,12 +58,9 @@ class LoanController extends Controller
             }
         }
 
-        // Jika sampai baris ini, berarti user sudah pasti login (baik dari awal maupun baru saja login via form publik)
         $item = Item::findOrFail($request->item_id);
 
-        // 3. Cek Ketersediaan Alat
         if ($item->status !== 'available') {
-            // Jika user baru saja login dari form publik, kita logout kembali agar tidak ada sesi yang tertinggal
             if ($request->has('username')) { 
                 Auth::logout(); 
             } 
@@ -92,7 +74,6 @@ class LoanController extends Controller
             ]);
         }
 
-        // 4. Catat ke tabel Loans
         $loan = Loan::create([
             'user_id'     => Auth::id(),
             'item_id'     => $item->id,
@@ -101,10 +82,15 @@ class LoanController extends Controller
             'status'      => 'active',
         ]);
 
-        // 5. Ubah status barang
         $item->update(['status' => 'borrowed']);
 
-        // 6. Tampilkan Halaman Sukses
+        // --- CATAT LOG AKTIVITAS ---
+        ActivityLog::create([
+            'user_id' => Auth::id(),
+            'action' => 'borrow',
+            'description' => Auth::user()->name . ' meminjam alat: ' . $item->name,
+        ]);
+
         return view('dashboard.peminjaman_user.success', [
             'item' => $item,
             'loan' => $loan,

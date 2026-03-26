@@ -3,21 +3,19 @@
 namespace App\Http\Controllers;
 
 use App\Models\Loan;
-
+use App\Models\ActivityLog; // <-- Tambahan
+use Illuminate\Support\Facades\Auth; // <-- Tambahan
 
 class AdminReportController extends Controller
 {
     public function index()
     {
-        // Ambil data peminjaman beserta relasi user dan item
         $loans = Loan::with(['user', 'item'])->latest()->paginate(10);
         
-        // Hitung statistik untuk cards
         $totalLoans    = Loan::count();
         $activeLoans   = Loan::where('status', 'active')->count();
         $returnedLoans = Loan::where('status', 'returned')->count();
         
-        // Hitung yang terlambat (active dan tanggal kembali < hari ini)
         $overdueLoans  = Loan::where('status', 'active')
                              ->where('return_date', '<', now())
                              ->count();
@@ -31,15 +29,19 @@ class AdminReportController extends Controller
     {
         $loan = Loan::findOrFail($id);
         
-        // Pastikan statusnya masih active
         if ($loan->status === 'active') {
-            // Ubah status loan menjadi returned
             $loan->update(['status' => 'returned']);
             
-            // Kembalikan status barang menjadi available
             if ($loan->item) {
                 $loan->item->update(['status' => 'available']);
             }
+            
+            // --- CATAT LOG AKTIVITAS ---
+            ActivityLog::create([
+                'user_id' => Auth::id(),
+                'action' => 'return_item',
+                'description' => 'Admin menyelesaikan peminjaman alat: ' . ($loan->item->name ?? 'Unknown') . ' oleh ' . ($loan->user->name ?? 'Unknown'),
+            ]);
             
             return back()->with('success', 'Peminjaman berhasil diselesaikan. Alat telah tersedia kembali.');
         }
@@ -51,13 +53,19 @@ class AdminReportController extends Controller
     {
         $loan = Loan::findOrFail($id);
         
-        // (Opsional) Jika barang sedang dipinjam (active), kita kembalikan statusnya jadi available dulu sebelum log-nya dihapus
         if ($loan->status === 'active' && $loan->item) {
             $loan->item->update(['status' => 'available']);
         }
 
-        // Hapus riwayat dari database
+        $itemName = $loan->item->name ?? 'Alat Dihapus';
         $loan->delete();
+
+        // --- CATAT LOG AKTIVITAS ---
+        ActivityLog::create([
+            'user_id' => Auth::id(),
+            'action' => 'delete_loan',
+            'description' => 'Admin menghapus riwayat peminjaman untuk alat: ' . $itemName,
+        ]);
 
         return back()->with('success', 'Riwayat peminjaman berhasil dihapus secara permanen.');
     }

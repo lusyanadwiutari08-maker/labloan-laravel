@@ -1,8 +1,8 @@
 <header class="flex items-center justify-between px-6 py-4 bg-white dark:bg-[#111a22] border-b border-slate-200 dark:border-border-dark flex-shrink-0 z-10">
     <div class="flex items-center flex-1 gap-4">
-        <button class="md:hidden p-2 rounded-lg text-slate-500 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800">
-            <span class="material-symbols-outlined">menu</span>
-        </button>
+<button type="button" onclick="toggleSidebar()" class="md:hidden text-slate-500 ...">
+    <span class="material-symbols-outlined">menu</span>
+</button>
         <h2 class="hidden md:block text-xl font-bold text-slate-800 dark:text-white tracking-tight">Dashboard Admin</h2>
         
     </div>

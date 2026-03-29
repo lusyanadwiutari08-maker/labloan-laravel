@@ -39,9 +39,15 @@
         <div class="bg-white dark:bg-[#1F2937] p-5 rounded-xl border border-slate-200 dark:border-border-dark shadow-sm flex flex-col justify-between group hover:border-primary/50 transition-colors">
             
             <div class="flex justify-between items-start mb-4">
-                <div class="w-12 h-12 bg-primary/10 text-primary rounded-xl flex items-center justify-center">
-                    <span class="material-symbols-outlined text-2xl">science</span>
-                </div>
+                @if($item->qr_code_path)
+                    <button type="button" onclick="openQrModal('{{ asset('storage/' . $item->qr_code_path) }}', '{{ addslashes($item->name) }}')" class="w-14 h-14 bg-white p-1 rounded-xl border border-slate-200 dark:border-slate-600 shadow-sm flex-shrink-0 flex items-center justify-center transition-transform group-hover:scale-110 cursor-pointer focus:outline-none focus:ring-2 focus:ring-primary" title="Perbesar QR Code">
+                        <img src="{{ asset('storage/' . $item->qr_code_path) }}" alt="QR {{ $item->item_code }}" class="w-full h-full object-contain rounded-lg">
+                    </button>
+                @else
+                    <div class="w-14 h-14 bg-primary/10 text-primary rounded-xl flex items-center justify-center flex-shrink-0 transition-transform group-hover:scale-110">
+                        <span class="material-symbols-outlined text-2xl">science</span>
+                    </div>
+                @endif
                 
                 @if($item->status === 'available')
                     <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400 border border-green-200 dark:border-green-800">
@@ -147,6 +153,35 @@
         </div>
     </div>
 </div>
+
+<div id="qrModal" class="fixed inset-0 z-[110] hidden overflow-y-auto" aria-labelledby="qr-modal-title" role="dialog" aria-modal="true">
+    <div class="fixed inset-0 bg-slate-900/80 backdrop-blur-sm transition-opacity" onclick="closeQrModal()"></div>
+
+    <div class="flex min-h-full items-center justify-center p-4 text-center sm:p-0 pointer-events-none">
+        <div class="relative transform overflow-hidden rounded-2xl bg-white dark:bg-[#1F2937] text-left shadow-2xl transition-all sm:my-8 sm:w-full sm:max-w-sm border border-slate-200 dark:border-border-dark pointer-events-auto">
+            
+            <div class="flex items-center justify-between p-4 border-b border-slate-200 dark:border-border-dark bg-slate-50 dark:bg-white/5">
+                <h3 class="font-bold text-slate-800 dark:text-white truncate pr-4 text-lg flex items-center gap-2">
+                    <span class="material-symbols-outlined text-primary">qr_code_2</span>
+                    <span id="qr_modal_title">QR Code</span>
+                </h3>
+                <button type="button" onclick="closeQrModal()" class="text-slate-400 hover:text-red-500 transition-colors p-1 flex-shrink-0">
+                    <span class="material-symbols-outlined">close</span>
+                </button>
+            </div>
+
+            <div class="p-8 flex flex-col items-center justify-center bg-slate-50 dark:bg-[#111827]">
+                <div class="bg-white p-4 rounded-xl shadow-md border border-slate-200">
+                    <img id="qr_modal_img" src="" alt="QR Code Besar" class="w-48 h-48 sm:w-64 sm:h-64 object-contain">
+                </div>
+                <p class="text-sm text-slate-500 dark:text-slate-400 mt-6 text-center max-w-xs font-medium">
+                    Arahkan kamera ke layar untuk memindai alat ini.
+                </p>
+            </div>
+            
+        </div>
+    </div>
+</div>
 @endsection
 
 @push('scripts')
@@ -154,25 +189,23 @@
 <script src="https://npmcdn.com/flatpickr/dist/l10n/id.js"></script>
 
 <script>
-    // Inisialisasi Flatpickr
     document.addEventListener('DOMContentLoaded', function() {
         flatpickr("#return_date_picker", {
-            enableTime: true,           // Mengaktifkan pemilih waktu (jam & menit)
-            dateFormat: "Y-m-d H:i",    // Format standar database (Tahun-Bulan-Hari Jam:Menit)
-            minDate: "today",           // Tidak bisa memilih tanggal kemarin
-            time_24hr: true,            // Menggunakan format 24 jam
-            locale: "id",               // Menggunakan bahasa Indonesia
-            disableMobile: "true",      // Menonaktifkan native picker di HP agar tetap pakai desain UI yang cantik
+            enableTime: true,           
+            dateFormat: "Y-m-d H:i",    
+            minDate: "today",           
+            time_24hr: true,            
+            locale: "id",               
+            disableMobile: "true",      
             placeholder: "Klik untuk memilih..."
         });
     });
 
+    // --- FUNGSI MODAL PEMINJAMAN ---
     function openBorrowModal(itemId, itemName, itemCode) {
         document.getElementById('modal_item_id').value = itemId;
         document.getElementById('modal_item_name').innerText = itemName;
         document.getElementById('modal_item_code').innerText = itemCode;
-        
-        // Reset tanggal setiap kali modal dibuka
         document.getElementById('return_date_picker').value = '';
         
         document.getElementById('borrowModal').classList.remove('hidden');
@@ -181,11 +214,39 @@
 
     function closeBorrowModal() {
         document.getElementById('borrowModal').classList.add('hidden');
-        document.body.classList.remove('overflow-hidden');
+        checkModalsAndBodyScroll();
     }
 
+    // --- FUNGSI MODAL QR CODE ---
+    function openQrModal(imageSrc, itemName) {
+        document.getElementById('qr_modal_img').src = imageSrc;
+        document.getElementById('qr_modal_title').innerText = itemName;
+        
+        document.getElementById('qrModal').classList.remove('hidden');
+        document.body.classList.add('overflow-hidden'); 
+    }
+
+    function closeQrModal() {
+        document.getElementById('qrModal').classList.add('hidden');
+        checkModalsAndBodyScroll();
+    }
+
+    // Helper untuk memastikan scroll body kembali aktif jika SEMUA modal sudah tertutup
+    function checkModalsAndBodyScroll() {
+        const isBorrowModalHidden = document.getElementById('borrowModal').classList.contains('hidden');
+        const isQrModalHidden = document.getElementById('qrModal').classList.contains('hidden');
+        
+        if (isBorrowModalHidden && isQrModalHidden) {
+            document.body.classList.remove('overflow-hidden');
+        }
+    }
+
+    // Tutup modal menggunakan tombol ESCAPE
     document.addEventListener('keydown', function(event) {
-        if (event.key === "Escape") closeBorrowModal();
+        if (event.key === "Escape") {
+            closeBorrowModal();
+            closeQrModal();
+        }
     });
 </script>
 @endpush

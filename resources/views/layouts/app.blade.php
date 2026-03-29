@@ -130,6 +130,36 @@
         });
     @endif
 </script>
+
+<script>
+    // Fungsi untuk membuka dan menutup Sidebar di Mobile
+    function toggleSidebar() {
+        const sidebar = document.getElementById('sidebar');
+        const overlay = document.getElementById('sidebar-overlay');
+
+        // Toggle posisi sidebar (masuk/keluar layar)
+        sidebar.classList.toggle('-translate-x-full');
+
+        // Jika sidebar tertutup (-translate-x-full ada)
+        if (sidebar.classList.contains('-translate-x-full')) {
+            overlay.classList.remove('opacity-100');
+            overlay.classList.add('opacity-0');
+            setTimeout(() => {
+                overlay.classList.add('hidden');
+            }, 300); // Sesuaikan dengan durasi animasi
+            document.body.classList.remove('overflow-hidden'); // Kembalikan scroll body
+        } 
+        // Jika sidebar terbuka
+        else {
+            overlay.classList.remove('hidden');
+            setTimeout(() => {
+                overlay.classList.remove('opacity-0');
+                overlay.classList.add('opacity-100');
+            }, 10);
+            document.body.classList.add('overflow-hidden'); // Matikan scroll body agar tidak berantakan
+        }
+    }
+</script>
 </body>
 
 </html>

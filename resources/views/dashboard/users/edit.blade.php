@@ -2,19 +2,6 @@
 
 @section('title', 'Edit Pengguna - LabLoans')
 
-@push('styles')
-<style type="text/tailwindcss">
-    .active-glow {
-        box-shadow: 0 0 15px rgba(19, 127, 236, 0.3);
-    }
-    .glass-effect {
-        background: rgba(31, 41, 55, 0.7);
-        backdrop-filter: blur(10px);
-        border: 1px solid rgba(55, 65, 81, 0.5);
-    }
-</style>
-@endpush
-
 @section('content')
 <div class="max-w-4xl mx-auto space-y-6">
     <nav class="flex items-center gap-2 text-sm font-medium text-slate-500 dark:text-slate-400">

@@ -7,6 +7,9 @@ use Illuminate\Support\Facades\Auth;
 use App\Models\User;
 use App\Models\ActivityLog; // <-- Tambahan
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\RateLimiter;
+use Illuminate\Support\Str;
+use Illuminate\Validation\ValidationException;
 
 class AuthController extends Controller
 {
@@ -22,9 +25,20 @@ class AuthController extends Controller
             'password' => ['required'],
         ]);
 
-        $remember = $request->has('remember');
+        $remember = $request->boolean('remember');
+
+        // Batasi brute force: maksimal 5 percobaan gagal per menit per (username + IP)
+        $throttleKey = Str::lower($request->input('username')) . '|' . $request->ip();
+
+        if (RateLimiter::tooManyAttempts($throttleKey, 5)) {
+            $seconds = RateLimiter::availableIn($throttleKey);
+            throw ValidationException::withMessages([
+                'username' => "Terlalu banyak percobaan login. Silakan coba lagi dalam {$seconds} detik.",
+            ]);
+        }
 
         if (Auth::attempt($credentials, $remember)) {
+            RateLimiter::clear($throttleKey);
             $request->session()->regenerate();
 
             // --- CATAT LOG AKTIVITAS ---
@@ -36,6 +50,8 @@ class AuthController extends Controller
 
             return redirect()->intended('/dashboard')->with('success', 'Selamat datang kembali! Anda berhasil masuk ke sistem.');
         }
+
+        RateLimiter::hit($throttleKey, 60);
 
         return back()->withErrors(['username' => 'Username atau password salah.'])->onlyInput('username');
     }

@@ -2,20 +2,6 @@
 
 @section('title', 'LabLoans Inventaris Admin')
 
-@push('styles')
-<style type="text/tailwindcss">
-    .active-glow {
-        box-shadow: 0 0 15px rgba(19, 127, 236, 0.3);
-    }
-    /* Efek Glass untuk Modal sesuai tema */
-    .modal-glass {
-        background: rgba(31, 41, 55, 0.8);
-        backdrop-filter: blur(12px);
-        border: 1px solid rgba(255, 255, 255, 0.1);
-    }
-</style>
-@endpush
-
 @section('content')
 <div class="max-w-[1600px] mx-auto space-y-6">
     

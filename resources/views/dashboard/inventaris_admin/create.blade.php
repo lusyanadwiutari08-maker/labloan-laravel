@@ -2,22 +2,6 @@
 
 @section('title', 'Tambah Alat Baru - LabLoans')
 
-@push('styles')
-<style type="text/tailwindcss">
-    .glass-card {
-        background: rgba(31, 41, 55, 0.6);
-        backdrop-filter: blur(12px);
-        border: 1px solid rgba(255, 255, 255, 0.1);
-    }
-    .neon-glow {
-        box-shadow: 0 0 15px rgba(19, 127, 236, 0.3);
-    }
-    .form-input-focus {
-        @apply focus:ring-2 focus:ring-primary focus:border-transparent outline-none transition-all;
-    }
-</style>
-@endpush
-
 @section('content')
 <div class="max-w-4xl mx-auto space-y-6">
     <div class="flex flex-col">

@@ -5,57 +5,9 @@
     <meta charset="utf-8" />
     <meta content="width=device-width, initial-scale=1.0" name="viewport" />
     <title>@yield('title', 'LabLoans')</title>
-    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap"
-        rel="stylesheet" />
     <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap"
         rel="stylesheet" />
-    <script>
-        tailwind.config = {
-            darkMode: "class",
-            theme: {
-                extend: {
-                    colors: {
-                        primary: "#137fec",
-                        "primary-dark": "#0f65bd",
-                        "background-light": "#f6f7f8",
-                        "background-dark": "#111827",
-                        "surface-dark": "#1F2937",
-                        "border-dark": "#374151",
-                    },
-                    fontFamily: {
-                        display: ["Manrope", "sans-serif"],
-                    },
-                    borderRadius: {
-                        DEFAULT: "0.25rem",
-                        lg: "0.5rem",
-                        xl: "0.75rem",
-                        full: "9999px",
-                    },
-                },
-            },
-        }
-    </script>
-    <style>
-        /* CSS UMUM UNTUK SEMUA HALAMAN (seperti scrollbar) taruh sini */
-        ::-webkit-scrollbar {
-            width: 8px;
-            height: 8px;
-        }
-
-        ::-webkit-scrollbar-track {
-            background: #111827;
-        }
-
-        ::-webkit-scrollbar-thumb {
-            background: #374151;
-            border-radius: 4px;
-        }
-
-        ::-webkit-scrollbar-thumb:hover {
-            background: #4B5563;
-        }
-    </style>
+    @vite(['resources/css/app.css', 'resources/js/app.js'])
 
     @stack('styles')
 </head>

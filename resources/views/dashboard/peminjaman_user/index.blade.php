@@ -11,30 +11,7 @@
     
     <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
     
-    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
-    
-    <script id="tailwind-config">
-      tailwind.config = {
-        darkMode: "class",
-        theme: {
-          extend: {
-            colors: {
-              "primary": "#137fec",
-              "primary-dark": "#0b5bb0",
-              "background-light": "#f6f7f8",
-              "background-dark": "#101922",
-              "surface-dark": "#1a2632",
-              "border-dark": "#2a3b4c",
-              "text-secondary": "#92adc9",
-            },
-            fontFamily: {
-              "display": ["Space Grotesk", "sans-serif"]
-            },
-            borderRadius: {"DEFAULT": "0.25rem", "lg": "0.5rem", "xl": "0.75rem", "full": "9999px"},
-          },
-        },
-      }
-    </script>
+    @vite(['resources/css/app.css', 'resources/js/app.js'])
 </head>
 <body class="bg-background-light dark:bg-background-dark font-display text-slate-900 dark:text-slate-100 min-h-screen flex flex-col antialiased selection:bg-primary/30">
 <div class="layout-container flex h-full grow flex-col mx-auto w-full max-w-[480px] shadow-2xl dark:shadow-black/50 min-h-screen relative border-x border-border-dark/50">

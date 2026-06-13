@@ -2,22 +2,6 @@
 
 @section('title', 'Edit Informasi Alat - LabLoans')
 
-@push('styles')
-<style type="text/tailwindcss">
-    .glass-card {
-        background: rgba(31, 41, 55, 0.6);
-        backdrop-filter: blur(12px);
-        border: 1px solid rgba(255, 255, 255, 0.1);
-    }
-    .neon-glow {
-        box-shadow: 0 0 15px rgba(19, 127, 236, 0.3);
-    }
-    .form-input-focus {
-        @apply focus:ring-2 focus:ring-primary focus:border-transparent outline-none transition-all;
-    }
-</style>
-@endpush
-
 @section('content')
 <div class="max-w-5xl mx-auto">
     <div class="flex items-center gap-2 text-xs text-slate-500 dark:text-slate-400 mb-4">

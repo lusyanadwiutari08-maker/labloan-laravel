@@ -6,32 +6,20 @@
 <div class="max-w-[1600px] mx-auto space-y-6">
     
     <div class="bg-white dark:bg-[#1F2937] p-6 rounded-xl border border-slate-200 dark:border-border-dark shadow-sm">
-        <form method="GET" action="{{ route('user.loans.index') }}" class="flex flex-col md:flex-row gap-4 items-end">
-            <div class="w-full md:w-56">
-                <label class="block text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase mb-2">Status</label>
-                <select name="status" class="w-full py-2.5 px-4 text-sm bg-slate-100 dark:bg-[#111a22] border-none rounded-lg focus:ring-2 focus:ring-primary dark:text-white cursor-pointer">
-                    <option value="Semua Status" {{ request('status') === 'Semua Status' ? 'selected' : '' }}>Semua Status</option>
-                    <option value="Sedang Dipinjam" {{ request('status') === 'Sedang Dipinjam' ? 'selected' : '' }}>Sedang Dipinjam</option>
-                    <option value="Selesai" {{ request('status') === 'Selesai' ? 'selected' : '' }}>Selesai</option>
-                    <option value="Terlambat" {{ request('status') === 'Terlambat' ? 'selected' : '' }}>Terlambat</option>
-                </select>
-            </div>
-            
-            <button type="submit" class="bg-primary hover:bg-primary-dark text-white px-6 py-2.5 rounded-lg font-semibold text-sm transition-all flex items-center justify-center gap-2">
-                <span class="material-symbols-outlined text-[20px]">filter_list</span> Terapkan Filter
-            </button>
-            
-            @if(request()->has('status') && request('status') !== 'Semua Status')
-                <a href="{{ route('user.loans.index') }}" class="px-4 py-2.5 text-sm text-slate-500 hover:text-red-500 transition-colors">
-                    Reset Filter
-                </a>
-            @endif
-        </form>
+        <div class="w-full md:w-56">
+            <label class="block text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase mb-2">Filter Status</label>
+            <select id="userLoanStatusFilter" class="w-full py-2.5 px-4 text-sm bg-slate-100 dark:bg-[#111a22] border-none rounded-lg focus:ring-2 focus:ring-primary dark:text-white cursor-pointer">
+                <option value="">Semua Status</option>
+                <option value="Sedang Dipinjam">Sedang Dipinjam</option>
+                <option value="Selesai">Selesai</option>
+                <option value="Terlambat">Terlambat</option>
+            </select>
+        </div>
     </div>
 
     <div class="bg-white dark:bg-[#1F2937] rounded-xl border border-slate-200 dark:border-border-dark shadow-sm overflow-hidden flex flex-col">
-        <div class="overflow-x-auto">
-            <table class="w-full text-left text-sm text-slate-600 dark:text-slate-300">
+        <div class="overflow-x-auto p-4 sm:p-6">
+            <table id="userLoansTable" class="datatable w-full text-left text-sm text-slate-600 dark:text-slate-300">
                 <thead class="bg-slate-50 dark:bg-[#111827] text-xs uppercase font-semibold text-slate-500 dark:text-slate-400">
                     <tr>
                         <th class="px-6 py-4">Nama Alat</th>
@@ -39,12 +27,12 @@
                         <th class="px-6 py-4">Tanggal Pinjam</th>
                         <th class="px-6 py-4">Batas Kembali</th>
                         <th class="px-6 py-4">Status</th>
-                        <th class="px-6 py-4 text-right">Aksi</th>
+                        <th class="px-6 py-4 text-right no-sort no-search no-export">Aksi</th>
                     </tr>
                 </thead>
                 <tbody class="divide-y divide-slate-200 dark:divide-border-dark">
-                    
-                    @forelse($loans as $loan)
+
+                    @foreach($loans as $loan)
                     @php
                         // Cek apakah status active tapi sudah lewat batas waktu
                         $isOverdue = $loan->status === 'active' && \Carbon\Carbon::now()->greaterThan($loan->return_date);
@@ -57,10 +45,10 @@
                         <td class="px-6 py-4 font-mono text-xs">
                             {{ $loan->item->item_code ?? '-' }}
                         </td>
-                        <td class="px-6 py-4">
+                        <td class="px-6 py-4" data-order="{{ optional($loan->loan_date)->timestamp }}">
                             {{ \Carbon\Carbon::parse($loan->loan_date)->format('d M Y, H:i') }}
                         </td>
-                        <td class="px-6 py-4 {{ $isOverdue ? 'text-red-500 font-bold' : '' }}">
+                        <td class="px-6 py-4 {{ $isOverdue ? 'text-red-500 font-bold' : '' }}" data-order="{{ optional($loan->return_date)->timestamp }}">
                             {{ \Carbon\Carbon::parse($loan->return_date)->format('d M Y, H:i') }}
                         </td>
                         <td class="px-6 py-4">
@@ -86,31 +74,20 @@
                             </button>
                         </td>
                     </tr>
-                    @empty
-                    <tr>
-                        <td colspan="6" class="px-6 py-12 text-center text-slate-500 dark:text-slate-400">
-                            <span class="material-symbols-outlined text-5xl opacity-20 block mb-2">history</span>
-                            Anda belum memiliki riwayat peminjaman.
-                        </td>
-                    </tr>
-                    @endforelse
+                    @endforeach
                 </tbody>
             </table>
         </div>
-        
-        <div class="p-4 border-t border-slate-200 dark:border-border-dark bg-slate-50 dark:bg-[#111827] flex flex-col sm:flex-row justify-between items-center px-6 gap-4">
+
+        <div class="p-4 border-t border-slate-200 dark:border-border-dark bg-slate-50 dark:bg-[#111827] px-6">
             <p class="text-sm font-medium text-slate-600 dark:text-slate-400">
                 Total Alat Pernah Dipinjam: <span class="text-slate-900 dark:text-white font-bold ml-1">{{ $totalBorrowedItems }} Alat</span>
             </p>
-            
-            <div class="flex gap-2">
-                @if($loans->hasPages())
-                    {{ $loans->appends(request()->query())->links() }}
-                @endif
-            </div>
         </div>
     </div>
 </div>
+
+@include('partials.datatables')
 
 <div id="detailModal" class="fixed inset-0 z-[100] hidden overflow-y-auto" aria-labelledby="modal-title" role="dialog" aria-modal="true">
     <div class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm transition-opacity" onclick="closeDetailModal()"></div>
@@ -171,6 +148,18 @@
 
 @push('scripts')
 <script>
+    document.addEventListener('DOMContentLoaded', function () {
+        var userLoansTable = initLabDataTable('#userLoansTable', {
+            order: [[2, 'desc']], // urut Tanggal Pinjam terbaru
+            buttons: LAB_DT_BUTTONS('Riwayat Peminjaman Saya')
+        });
+
+        // Dropdown filter status menyetir pencarian kolom Status (indeks 4)
+        document.getElementById('userLoanStatusFilter').addEventListener('change', function () {
+            userLoansTable.column(4).search(this.value).draw();
+        });
+    });
+
     function openDetailModal(itemName, itemCode, loanDate, returnDate, status, isOverdue) {
         // Masukkan data ke dalam elemen modal
         document.getElementById('modalItemName').innerText = itemName;

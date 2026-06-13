@@ -95,10 +95,17 @@
         </main>
         
         <footer class="p-6 pb-10 flex flex-col gap-4 w-full bg-background-dark">
-            <a href="{{ route('dashboard') }}" class="w-full bg-primary hover:bg-primary-dark text-white font-bold py-4 px-6 rounded-xl shadow-lg shadow-primary/20 flex items-center justify-center gap-3 transition-all active:scale-[0.98]">
-                <span>Ke Dashboard Saya</span>
-                <span class="material-symbols-outlined text-[20px]">dashboard</span>
-            </a>
+            @if(!empty($wasGuest))
+                <a href="{{ route('login') }}" class="w-full bg-primary hover:bg-primary-dark text-white font-bold py-4 px-6 rounded-xl shadow-lg shadow-primary/20 flex items-center justify-center gap-3 transition-all active:scale-[0.98]">
+                    <span>Masuk ke Akun Saya</span>
+                    <span class="material-symbols-outlined text-[20px]">login</span>
+                </a>
+            @else
+                <a href="{{ route('dashboard') }}" class="w-full bg-primary hover:bg-primary-dark text-white font-bold py-4 px-6 rounded-xl shadow-lg shadow-primary/20 flex items-center justify-center gap-3 transition-all active:scale-[0.98]">
+                    <span>Ke Dashboard Saya</span>
+                    <span class="material-symbols-outlined text-[20px]">dashboard</span>
+                </a>
+            @endif
             <a href="/" class="w-full py-3 text-text-secondary hover:text-white font-medium transition-colors text-center text-sm">
                 Tutup Halaman
             </a>

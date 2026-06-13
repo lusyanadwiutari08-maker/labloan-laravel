@@ -179,6 +179,7 @@
             <div class="bg-white dark:bg-[#1F2937] rounded-xl border border-slate-200 dark:border-border-dark shadow-sm p-5">
                 <div class="flex justify-between items-center mb-4">
                     <h3 class="font-bold text-slate-800 dark:text-white">Pemberitahuan Sistem</h3>
+                    <a href="{{ route('admin.activity.index') }}" class="text-xs font-medium text-primary hover:underline">Lihat Semua</a>
                 </div>
                 
                 <div class="space-y-4">
@@ -219,27 +220,25 @@
 
             <div class="bg-white dark:bg-[#1F2937] rounded-xl border border-slate-200 dark:border-border-dark shadow-sm p-5">
                 <div class="flex justify-between items-center mb-6">
-                    <h3 class="font-bold text-slate-800 dark:text-white">Aktivitas Lab</h3>
-                    <select class="bg-transparent text-xs font-medium text-slate-500 border-none focus:ring-0 cursor-pointer dark:bg-transparent">
-                        <option>Minggu Ini</option>
-                    </select>
+                    <h3 class="font-bold text-slate-800 dark:text-white">Aktivitas Peminjaman</h3>
+                    <span class="text-xs font-medium text-slate-500">7 Hari Terakhir</span>
                 </div>
                 <div class="flex items-end justify-between gap-2 h-40">
-                    <div class="flex flex-col items-center gap-2 w-full">
-                        <div class="w-full bg-slate-100 dark:bg-slate-700 rounded-t-sm relative h-full flex items-end"><div class="w-full bg-primary/40 dark:bg-primary/30 rounded-t-sm" style="height: 40%"></div></div><span class="text-xs text-slate-500">Sen</span>
-                    </div>
-                    <div class="flex flex-col items-center gap-2 w-full">
-                        <div class="w-full bg-slate-100 dark:bg-slate-700 rounded-t-sm relative h-full flex items-end"><div class="w-full bg-primary/40 dark:bg-primary/30 rounded-t-sm" style="height: 65%"></div></div><span class="text-xs text-slate-500">Sel</span>
-                    </div>
-                    <div class="flex flex-col items-center gap-2 w-full">
-                        <div class="w-full bg-slate-100 dark:bg-slate-700 rounded-t-sm relative h-full flex items-end"><div class="w-full bg-primary rounded-t-sm shadow-[0_0_10px_rgba(19,127,236,0.5)]" style="height: 85%"></div></div><span class="text-xs font-bold text-primary">Rab</span>
-                    </div>
-                    <div class="flex flex-col items-center gap-2 w-full">
-                        <div class="w-full bg-slate-100 dark:bg-slate-700 rounded-t-sm relative h-full flex items-end"><div class="w-full bg-primary/40 dark:bg-primary/30 rounded-t-sm" style="height: 55%"></div></div><span class="text-xs text-slate-500">Kam</span>
-                    </div>
-                    <div class="flex flex-col items-center gap-2 w-full">
-                        <div class="w-full bg-slate-100 dark:bg-slate-700 rounded-t-sm relative h-full flex items-end"><div class="w-full bg-primary/40 dark:bg-primary/30 rounded-t-sm" style="height: 30%"></div></div><span class="text-xs text-slate-500">Jum</span>
-                    </div>
+                    @forelse($weekActivity ?? [] as $day)
+                        @php
+                            // Tinggi batang relatif terhadap hari tersibuk (minimal 4% agar tetap terlihat)
+                            $pct = ($weekMax ?? 0) > 0 ? max(4, round($day['count'] / $weekMax * 100)) : 4;
+                        @endphp
+                        <div class="flex flex-col items-center gap-2 w-full group relative">
+                            <span class="absolute -top-5 text-[10px] font-bold text-primary opacity-0 group-hover:opacity-100 transition-opacity">{{ $day['count'] }}</span>
+                            <div class="w-full bg-slate-100 dark:bg-slate-700 rounded-t-sm relative h-full flex items-end" title="{{ $day['count'] }} peminjaman">
+                                <div class="w-full rounded-t-sm transition-all {{ $day['isToday'] ? 'bg-primary shadow-[0_0_10px_rgba(19,127,236,0.5)]' : 'bg-primary/40 dark:bg-primary/30' }}" style="height: {{ $pct }}%"></div>
+                            </div>
+                            <span class="text-xs {{ $day['isToday'] ? 'font-bold text-primary' : 'text-slate-500' }}">{{ $day['label'] }}</span>
+                        </div>
+                    @empty
+                        <p class="text-sm text-slate-500 w-full text-center self-center">Belum ada data aktivitas.</p>
+                    @endforelse
                 </div>
             </div>
 

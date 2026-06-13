@@ -17,9 +17,20 @@ class LoanController extends Controller
 
     public function borrowList(Request $request)
     {
-        $items = Item::orderByRaw("FIELD(status, 'available') DESC")
-                     ->latest()
-                     ->paginate(12);
+        $query = Item::query();
+
+        // Pencarian berdasarkan nama atau kode alat
+        if ($search = trim((string) $request->input('search'))) {
+            $query->where(function ($q) use ($search) {
+                $q->where('name', 'like', "%{$search}%")
+                  ->orWhere('item_code', 'like', "%{$search}%");
+            });
+        }
+
+        $items = $query->orderByRaw("FIELD(status, 'available') DESC")
+                       ->latest()
+                       ->paginate(12)
+                       ->withQueryString();
 
         return view('dashboard.peminjaman_user.borrow_list', compact('items'));
     }
@@ -37,12 +48,15 @@ class LoanController extends Controller
 
     public function store(Request $request)
     {
+        // Tandai apakah peminjaman ini berasal dari tamu (scan QR publik tanpa login)
+        $wasGuest = !Auth::check();
+
         $request->validate([
             'item_id'     => 'required|exists:items,id',
             'return_date' => 'required|date|after:now',
         ]);
 
-        if (!Auth::check()) {
+        if ($wasGuest) {
             $request->validate([
                 'username' => 'required|string',
                 'password' => 'required|string',
@@ -61,12 +75,15 @@ class LoanController extends Controller
         $item = Item::findOrFail($request->item_id);
 
         if ($item->status !== 'available') {
-            if ($request->has('username')) { 
-                Auth::logout(); 
-            } 
-            
+            // Tamu yang sempat login untuk verifikasi tidak boleh meninggalkan sesi aktif
+            if ($wasGuest) {
+                Auth::logout();
+                $request->session()->invalidate();
+                $request->session()->regenerateToken();
+            }
+
             $statusTeks = $item->status === 'maintenance' ? 'Maintenance Mode' : 'Sedang Dipinjam';
-            
+
             return view('dashboard.peminjaman_user.error', [
                 'item'         => $item,
                 'message'      => 'Maaf, alat ini sedang ' . strtolower($statusTeks) . ' dan tidak dapat dipinjam saat ini.',
@@ -74,8 +91,10 @@ class LoanController extends Controller
             ]);
         }
 
+        $borrower = Auth::user();
+
         $loan = Loan::create([
-            'user_id'     => Auth::id(),
+            'user_id'     => $borrower->id,
             'item_id'     => $item->id,
             'loan_date'   => now(),
             'return_date' => $request->return_date,
@@ -86,15 +105,23 @@ class LoanController extends Controller
 
         // --- CATAT LOG AKTIVITAS ---
         ActivityLog::create([
-            'user_id' => Auth::id(),
+            'user_id' => $borrower->id,
             'action' => 'borrow',
-            'description' => Auth::user()->name . ' meminjam alat: ' . $item->name,
+            'description' => $borrower->name . ' meminjam alat: ' . $item->name,
         ]);
 
+        // Untuk peminjaman tamu (scan publik), akhiri sesi agar tidak tertinggal di perangkat bersama
+        if ($wasGuest) {
+            Auth::logout();
+            $request->session()->invalidate();
+            $request->session()->regenerateToken();
+        }
+
         return view('dashboard.peminjaman_user.success', [
-            'item' => $item,
-            'loan' => $loan,
-            'user' => Auth::user()
+            'item'     => $item,
+            'loan'     => $loan,
+            'user'     => $borrower,
+            'wasGuest' => $wasGuest,
         ]);
     }
 }

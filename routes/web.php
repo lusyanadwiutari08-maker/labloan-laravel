@@ -1,6 +1,7 @@
 <?php
 
-use App\Http\Controllers\AdminReportController; 
+use App\Http\Controllers\ActivityLogController;
+use App\Http\Controllers\AdminReportController;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\ItemController;
@@ -49,6 +50,9 @@ Route::middleware('auth')->group(function () {
         Route::get('/loans', [AdminReportController::class, 'index'])->name('admin.loans.index');
         Route::post('/loans/{id}/return', [AdminReportController::class, 'markAsReturned'])->name('admin.loans.return');
         Route::delete('/loans/{id}', [AdminReportController::class, 'destroy'])->name('admin.loans.destroy');
+
+        // --- LOG AKTIVITAS SISTEM ---
+        Route::get('/activity-logs', [ActivityLogController::class, 'index'])->name('admin.activity.index');
     });
 
     // Route Khusus User/Peminjam (Akses Dibatasi Middleware)

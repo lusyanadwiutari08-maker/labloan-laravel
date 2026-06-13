@@ -26,12 +26,19 @@
             <p class="text-sm text-slate-500 dark:text-slate-400 mt-1">Pilih alat yang tersedia dan tentukan tanggal pengembalian untuk meminjam.</p>
         </div>
         
-        <div class="relative w-full md:w-64">
-            <span class="absolute inset-y-0 left-0 flex items-center pl-3 text-slate-400 pointer-events-none">
-                <span class="material-symbols-outlined text-[18px]">search</span>
-            </span>
-            <input type="text" class="w-full py-2.5 pl-10 pr-4 text-sm bg-slate-100 dark:bg-[#111a22] border-none rounded-lg focus:ring-2 focus:ring-primary dark:text-white" placeholder="Cari alat...">
-        </div>
+        <form method="GET" action="{{ route('user.borrow.index') }}" class="relative w-full md:w-72 flex items-center gap-2">
+            <div class="relative flex-1">
+                <span class="absolute inset-y-0 left-0 flex items-center pl-3 text-slate-400 pointer-events-none">
+                    <span class="material-symbols-outlined text-[18px]">search</span>
+                </span>
+                <input type="text" name="search" value="{{ request('search') }}" class="w-full py-2.5 pl-10 pr-4 text-sm bg-slate-100 dark:bg-[#111a22] border-none rounded-lg focus:ring-2 focus:ring-primary dark:text-white" placeholder="Cari nama atau kode alat...">
+            </div>
+            @if(request('search'))
+                <a href="{{ route('user.borrow.index') }}" class="text-slate-400 hover:text-red-500 transition-colors" title="Reset pencarian">
+                    <span class="material-symbols-outlined">close</span>
+                </a>
+            @endif
+        </form>
     </div>
 
     <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
@@ -86,8 +93,12 @@
         </div>
         @empty
         <div class="col-span-full py-12 text-center text-slate-500">
-            <span class="material-symbols-outlined text-5xl opacity-20 block mb-2">inventory_2</span>
-            Belum ada alat yang terdaftar di sistem.
+            <span class="material-symbols-outlined text-5xl opacity-20 block mb-2">{{ request('search') ? 'search_off' : 'inventory_2' }}</span>
+            @if(request('search'))
+                Tidak ada alat yang cocok dengan pencarian "<span class="font-semibold">{{ request('search') }}</span>".
+            @else
+                Belum ada alat yang terdaftar di sistem.
+            @endif
         </div>
         @endforelse
     </div>

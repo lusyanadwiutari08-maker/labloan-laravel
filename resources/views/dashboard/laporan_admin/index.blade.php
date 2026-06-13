@@ -68,28 +68,21 @@
 
     <div class="bg-white dark:bg-[#1F2937] rounded-xl border border-slate-200 dark:border-border-dark shadow-sm overflow-hidden flex flex-col">
         
-        <div class="p-6 border-b border-slate-200 dark:border-border-dark flex flex-wrap justify-between items-center gap-4">
-            <div class="flex items-center gap-4">
-                <h3 class="text-lg font-bold text-slate-800 dark:text-white">Daftar Peminjaman</h3>
-                <div class="flex bg-slate-100 dark:bg-slate-800 p-1 rounded-lg">
-                    <button class="px-3 py-1 text-xs font-semibold bg-white dark:bg-[#233648] shadow-sm rounded-md">Semua</button>
-                </div>
-            </div>
-            
-            <div class="flex gap-2">
-                <button class="flex items-center gap-2 px-4 py-2 text-sm font-medium text-slate-700 dark:text-slate-300 bg-white dark:bg-slate-800 border border-slate-200 dark:border-border-dark rounded-lg hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors">
-                    <span class="material-symbols-outlined text-[18px]">filter_list</span>
-                    Filter
-                </button>
-                <button class="flex items-center gap-2 px-4 py-2 text-sm font-medium text-white bg-primary rounded-lg hover:bg-primary-dark transition-colors">
-                    <span class="material-symbols-outlined text-[18px]">download</span>
-                    Ekspor Data
-                </button>
+        <div class="p-6 border-b border-slate-200 dark:border-border-dark flex flex-wrap justify-between items-end gap-4">
+            <h3 class="text-lg font-bold text-slate-800 dark:text-white">Daftar Peminjaman</h3>
+            <div class="w-full sm:w-56">
+                <label class="block text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase mb-1.5">Filter Status</label>
+                <select id="loanStatusFilter" class="w-full py-2.5 px-4 text-sm bg-slate-100 dark:bg-[#111a22] border-none rounded-lg focus:ring-2 focus:ring-primary dark:text-white cursor-pointer">
+                    <option value="">Semua Status</option>
+                    <option value="Active">Sedang Dipinjam</option>
+                    <option value="Overdue">Terlambat</option>
+                    <option value="Returned">Selesai</option>
+                </select>
             </div>
         </div>
-        
+
         <div class="overflow-x-auto">
-            <table class="w-full text-left text-sm text-slate-600 dark:text-slate-300 border-collapse">
+            <table id="loansTable" class="datatable w-full text-left text-sm text-slate-600 dark:text-slate-300 border-collapse">
                 <thead class="bg-slate-50 dark:bg-[#111827] text-xs uppercase font-semibold text-slate-500 dark:text-slate-400">
                     <tr>
                         <th class="px-6 py-4 border-b border-slate-200 dark:border-border-dark">ID Pinjam</th>
@@ -98,12 +91,12 @@
                         <th class="px-6 py-4 border-b border-slate-200 dark:border-border-dark">Tgl Pinjam</th>
                         <th class="px-6 py-4 border-b border-slate-200 dark:border-border-dark">Batas Kembali</th>
                         <th class="px-6 py-4 border-b border-slate-200 dark:border-border-dark">Status</th>
-                        <th class="px-6 py-4 border-b border-slate-200 dark:border-border-dark text-right">Aksi</th>
+                        <th class="px-6 py-4 border-b border-slate-200 dark:border-border-dark text-right no-sort no-search no-export">Aksi</th>
                     </tr>
                 </thead>
                 <tbody class="divide-y divide-slate-200 dark:divide-border-dark">
-                    
-                    @forelse($loans as $loan)
+
+                    @foreach($loans as $loan)
                     @php
                         // Cek apakah status active tapi tanggal sekarang sudah melewati batas kembali
                         $isOverdue = $loan->status === 'active' && \Carbon\Carbon::now()->greaterThan($loan->return_date);
@@ -119,10 +112,10 @@
                         <td class="px-6 py-4 font-medium">
                             {{ $loan->user->name ?? 'User Dihapus' }}
                         </td>
-                        <td class="px-6 py-4">
+                        <td class="px-6 py-4" data-order="{{ optional($loan->loan_date)->timestamp }}">
                             {{ \Carbon\Carbon::parse($loan->loan_date)->format('d M Y, H:i') }}
                         </td>
-                        <td class="px-6 py-4 {{ $isOverdue ? 'text-red-500 font-bold' : '' }}">
+                        <td class="px-6 py-4 {{ $isOverdue ? 'text-red-500 font-bold' : '' }}" data-order="{{ optional($loan->return_date)->timestamp }}">
                             {{ \Carbon\Carbon::parse($loan->return_date)->format('d M Y, H:i') }}
                         </td>
                         <td class="px-6 py-4">
@@ -163,28 +156,15 @@
                             </div>
                         </td>
                     </tr>
-                    @empty
-                    <tr>
-                        <td colspan="7" class="px-6 py-12 text-center text-slate-500 dark:text-slate-400">
-                            <span class="material-symbols-outlined text-5xl opacity-20 block mb-2">list_alt</span>
-                            Belum ada riwayat peminjaman.
-                        </td>
-                    </tr>
-                    @endforelse
-                    
+                    @endforeach
+
                 </tbody>
             </table>
         </div>
-        
-        <div class="p-4 border-t border-slate-200 dark:border-border-dark bg-slate-50 dark:bg-[#111827] flex items-center justify-between">
-            @if(isset($loans) && $loans->hasPages())
-                {{ $loans->links() }}
-            @else
-                <p class="text-xs text-slate-500">Menampilkan semua peminjaman</p>
-            @endif
-        </div>
     </div>
 </div>
+
+@include('partials.datatables')
 
 <div id="returnModal" class="fixed inset-0 z-[100] hidden overflow-y-auto" aria-labelledby="modal-title" role="dialog" aria-modal="true">
     <div class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm transition-opacity" onclick="closeReturnModal()"></div>
@@ -259,6 +239,19 @@
 
 @push('scripts')
 <script>
+    // === INISIALISASI DATATABLES ===
+    document.addEventListener('DOMContentLoaded', function () {
+        var loansTable = initLabDataTable('#loansTable', {
+            order: [[3, 'desc']], // urut Tgl Pinjam terbaru
+            buttons: LAB_DT_BUTTONS('Laporan Peminjaman')
+        });
+
+        // Dropdown filter status menyetir pencarian kolom Status (indeks 5)
+        document.getElementById('loanStatusFilter').addEventListener('change', function () {
+            loansTable.column(5).search(this.value).draw();
+        });
+    });
+
     // === LOGIKA MODAL RETURN ===
     let formReturnIdToSubmit = null;
 

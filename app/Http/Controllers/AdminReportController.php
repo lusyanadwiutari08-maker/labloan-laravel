@@ -3,19 +3,20 @@
 namespace App\Http\Controllers;
 
 use App\Models\Loan;
-use App\Models\ActivityLog; // <-- Tambahan
-use Illuminate\Support\Facades\Auth; // <-- Tambahan
+use App\Models\ActivityLog;
+use Illuminate\Support\Facades\Auth;
 
 class AdminReportController extends Controller
 {
     public function index()
     {
-        $loans = Loan::with(['user', 'item'])->latest()->paginate(10);
-        
+        // Semua baris dimuat; cari/filter/sort/paginasi/ekspor ditangani DataTables (client-side)
+        $loans = Loan::with(['user', 'item'])->latest()->get();
+
         $totalLoans    = Loan::count();
         $activeLoans   = Loan::where('status', 'active')->count();
         $returnedLoans = Loan::where('status', 'returned')->count();
-        
+
         $overdueLoans  = Loan::where('status', 'active')
                              ->where('return_date', '<', now())
                              ->count();
@@ -28,21 +29,21 @@ class AdminReportController extends Controller
     public function markAsReturned($id)
     {
         $loan = Loan::findOrFail($id);
-        
+
         if ($loan->status === 'active') {
             $loan->update(['status' => 'returned']);
-            
+
             if ($loan->item) {
                 $loan->item->update(['status' => 'available']);
             }
-            
+
             // --- CATAT LOG AKTIVITAS ---
             ActivityLog::create([
                 'user_id' => Auth::id(),
                 'action' => 'return_item',
                 'description' => 'Admin menyelesaikan peminjaman alat: ' . ($loan->item->name ?? 'Unknown') . ' oleh ' . ($loan->user->name ?? 'Unknown'),
             ]);
-            
+
             return back()->with('success', 'Peminjaman berhasil diselesaikan. Alat telah tersedia kembali.');
         }
 
@@ -52,7 +53,7 @@ class AdminReportController extends Controller
     public function destroy($id)
     {
         $loan = Loan::findOrFail($id);
-        
+
         if ($loan->status === 'active' && $loan->item) {
             $loan->item->update(['status' => 'available']);
         }

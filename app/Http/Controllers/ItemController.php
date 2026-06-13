@@ -14,7 +14,8 @@ class ItemController extends Controller
 {
     public function index()
     {
-        $items = Item::latest()->paginate(10);
+        // Semua baris dimuat; pencarian/sort/paginasi ditangani DataTables (client-side)
+        $items = Item::latest()->get();
         return view('dashboard.inventaris_admin.index', compact('items'));
     }
 

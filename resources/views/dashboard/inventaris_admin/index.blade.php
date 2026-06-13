@@ -45,28 +45,31 @@
     <div class="bg-white dark:bg-[#1F2937] p-4 sm:p-6 rounded-xl border border-slate-200 dark:border-border-dark shadow-sm">
         
         <div class="flex flex-col md:flex-row gap-4 mb-6">
-            <div class="relative flex-1">
-                <span class="absolute inset-y-0 left-0 flex items-center pl-3 text-slate-400 pointer-events-none">
-                    <span class="material-symbols-outlined text-[20px]">search</span>
-                </span>
-                <input type="text" class="w-full py-2.5 pl-10 pr-4 text-sm text-slate-900 bg-slate-50 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary dark:bg-[#111a22] dark:border-border-dark dark:text-white transition-all" placeholder="Cari nama alat atau kode item...">
+            <div class="w-full md:w-56">
+                <label class="block text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase mb-1.5">Filter Status</label>
+                <select id="itemStatusFilter" class="w-full py-2.5 px-4 text-sm bg-slate-50 dark:bg-[#111a22] border border-slate-200 dark:border-border-dark rounded-lg focus:ring-2 focus:ring-primary dark:text-white cursor-pointer">
+                    <option value="">Semua Status</option>
+                    <option value="Tersedia">Tersedia</option>
+                    <option value="Dipinjam">Dipinjam</option>
+                    <option value="Perbaikan">Perbaikan</option>
+                </select>
             </div>
         </div>
 
         <div class="overflow-x-auto rounded-lg border border-slate-200 dark:border-border-dark">
-            <table class="w-full text-left text-sm text-slate-600 dark:text-slate-300">
+            <table id="itemsTable" class="datatable w-full text-left text-sm text-slate-600 dark:text-slate-300">
                 <thead class="bg-slate-50 dark:bg-[#111827] text-xs uppercase font-semibold text-slate-500 dark:text-slate-400 border-b border-slate-200 dark:border-border-dark">
                     <tr>
                         <th class="px-6 py-4">Kode Item</th>
                         <th class="px-6 py-4">Nama & Deskripsi</th>
                         <th class="px-6 py-4">Status</th>
-                        <th class="px-6 py-4 text-center">QR Code</th>
-                        <th class="px-6 py-4 text-right">Aksi</th>
+                        <th class="px-6 py-4 text-center no-sort no-search no-export">QR Code</th>
+                        <th class="px-6 py-4 text-right no-sort no-search no-export">Aksi</th>
                     </tr>
                 </thead>
                 <tbody class="divide-y divide-slate-200 dark:divide-border-dark">
-                    
-                    @forelse ($items as $item)
+
+                    @foreach ($items as $item)
                     <tr class="hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors">
                         <td class="px-6 py-4 font-mono text-xs font-semibold text-primary dark:text-blue-400">
                             {{ $item->item_code }}
@@ -132,26 +135,15 @@
                             </div>
                         </td>
                     </tr>
-                    @empty
-                    <tr>
-                        <td colspan="5" class="px-6 py-12 text-center text-slate-500 dark:text-slate-400">
-                            <span class="material-symbols-outlined text-5xl opacity-20 block mb-2">inventory_2</span>
-                            Belum ada alat laboratorium yang terdaftar.
-                        </td>
-                    </tr>
-                    @endforelse
+                    @endforeach
                 </tbody>
             </table>
         </div>
 
-        @if (isset($items) && $items->hasPages())
-        <div class="mt-4">
-            {{ $items->links() }}
-        </div>
-        @endif
-
     </div>
 </div>
+
+@include('partials.datatables')
 
 <div id="qrModal" class="fixed inset-0 z-[110] hidden overflow-y-auto" aria-labelledby="modal-title" role="dialog" aria-modal="true">
     <div class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm transition-opacity" onclick="closeQrModal()"></div>
@@ -218,6 +210,19 @@
 
 @push('scripts')
 <script>
+    // --- INISIALISASI DATATABLES ---
+    document.addEventListener('DOMContentLoaded', function () {
+        var itemsTable = initLabDataTable('#itemsTable', {
+            order: [[0, 'asc']],
+            buttons: LAB_DT_BUTTONS('Daftar Inventaris Alat Lab')
+        });
+
+        // Dropdown filter status menyetir pencarian kolom Status (indeks 2)
+        document.getElementById('itemStatusFilter').addEventListener('change', function () {
+            itemsTable.column(2).search(this.value).draw();
+        });
+    });
+
     // --- LOGIKA MODAL HAPUS ---
     let itemIdToDelete = null;
 

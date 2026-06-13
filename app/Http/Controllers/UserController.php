@@ -12,9 +12,10 @@ class UserController extends Controller
 {
     public function index()
     {
+        // Semua baris dimuat; pencarian/sort/paginasi ditangani DataTables (client-side)
         $users = User::where('id', '!=', Auth::id())
             ->latest()
-            ->paginate(10);
+            ->get();
 
         return view('dashboard.users.index', compact('users'));
     }

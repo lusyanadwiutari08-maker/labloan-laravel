@@ -37,14 +37,31 @@ class DashboardController extends Controller
                 ->take(5)
                 ->get();
 
+            // Grafik aktivitas peminjaman 7 hari terakhir (data riil)
+            $hari = ['Min', 'Sen', 'Sel', 'Rab', 'Kam', 'Jum', 'Sab'];
+            $weekActivity = [];
+            $weekMax = 0;
+            for ($i = 6; $i >= 0; $i--) {
+                $date  = now()->subDays($i);
+                $count = Loan::whereDate('loan_date', $date->toDateString())->count();
+                $weekMax = max($weekMax, $count);
+                $weekActivity[] = [
+                    'label'   => $hari[$date->dayOfWeek],
+                    'count'   => $count,
+                    'isToday' => $i === 0,
+                ];
+            }
+
             // Pastikan nama view ('index') sesuai dengan struktur folder kamu
             return view('index', compact(
-                'totalUsers', 
-                'activeLoans', 
-                'maintenanceItems', 
-                'totalItems', 
+                'totalUsers',
+                'activeLoans',
+                'maintenanceItems',
+                'totalItems',
                 'latestLoans',
-                'activityLogs' // Kirim data log ke view
+                'activityLogs', // Kirim data log ke view
+                'weekActivity',
+                'weekMax'
             ));
             
         } 

@@ -41,29 +41,20 @@
         </a>
     </div>
 
-    <div class="bg-white dark:bg-[#1F2937] p-4 rounded-xl border border-slate-200 dark:border-border-dark shadow-sm">
-        <div class="relative flex-1">
-            <span class="absolute inset-y-0 left-0 flex items-center pl-3 text-slate-400 pointer-events-none">
-                <span class="material-symbols-outlined text-[20px]">search</span>
-            </span>
-            <input class="w-full py-2.5 pl-10 pr-4 text-sm text-slate-900 bg-slate-100 border-none rounded-lg focus:outline-none focus:ring-2 focus:ring-primary dark:bg-[#233648] dark:text-white dark:placeholder-slate-400 transition-all" placeholder="Cari nama, username, atau email..." type="text"/>
-        </div>
-    </div>
-
-    <div class="bg-white dark:bg-[#1F2937] rounded-xl border border-slate-200 dark:border-border-dark shadow-sm overflow-hidden">
+    <div class="bg-white dark:bg-[#1F2937] rounded-xl border border-slate-200 dark:border-border-dark shadow-sm p-4 sm:p-6">
         <div class="overflow-x-auto">
-            <table class="w-full text-left text-sm text-slate-600 dark:text-slate-300">
+            <table id="usersTable" class="datatable w-full text-left text-sm text-slate-600 dark:text-slate-300">
                 <thead class="bg-slate-50 dark:bg-[#111827] text-xs uppercase font-semibold text-slate-500 dark:text-slate-400">
                     <tr>
                         <th class="px-6 py-4">Pengguna</th>
                         <th class="px-6 py-4">Username</th>
                         <th class="px-6 py-4">Role</th>
                         <th class="px-6 py-4">Status</th>
-                        <th class="px-6 py-4 text-right">Aksi</th>
+                        <th class="px-6 py-4 text-right no-sort no-search no-export">Aksi</th>
                     </tr>
                 </thead>
                 <tbody class="divide-y divide-slate-200 dark:divide-border-dark">
-                    @forelse ($users as $user)
+                    @foreach ($users as $user)
                     <tr class="hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors">
                         <td class="px-6 py-4">
                             <div class="flex flex-col">
@@ -101,25 +92,14 @@
                             </div>
                         </td>
                     </tr>
-                    @empty
-                    <tr>
-                        <td colspan="5" class="px-6 py-12 text-center text-slate-500">
-                            <span class="material-symbols-outlined text-5xl opacity-20 block mb-2">person_off</span>
-                            Data pengguna tidak ditemukan.
-                        </td>
-                    </tr>
-                    @endforelse
+                    @endforeach
                 </tbody>
             </table>
         </div>
-        
-        @if ($users->hasPages())
-        <div class="p-4 border-t border-slate-200 dark:border-border-dark bg-slate-50 dark:bg-[#111827]">
-            {{ $users->links() }}
-        </div>
-        @endif
     </div>
 </div>
+
+@include('partials.datatables')
 
 <div id="deleteModal" class="fixed inset-0 z-[100] hidden overflow-y-auto" aria-labelledby="modal-title" role="dialog" aria-modal="true">
     <div class="fixed inset-0 bg-slate-900/40 backdrop-blur-md transition-opacity"></div>
@@ -157,6 +137,13 @@
 
 @push('scripts')
 <script>
+    document.addEventListener('DOMContentLoaded', function () {
+        initLabDataTable('#usersTable', {
+            order: [[0, 'asc']],
+            buttons: LAB_DT_BUTTONS('Daftar Pengguna LabLoans')
+        });
+    });
+
     let userIdToDelete = null;
 
     function openDeleteModal(id, name) {

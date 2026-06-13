@@ -58,7 +58,21 @@
         <div class="px-5 pt-6 pb-4">
             <div class="flex flex-col gap-2">
                 <h1 class="text-slate-100 tracking-tight text-3xl font-bold leading-tight">Peminjaman Ekspres</h1>
-                
+
+                @if($errors->any())
+                    <div class="flex flex-col gap-1 p-3 bg-red-500/10 border border-red-500/20 rounded-lg text-red-400">
+                        <div class="flex items-center gap-2 text-red-500">
+                            <span class="material-symbols-outlined text-[18px]">error</span>
+                            <p class="text-sm font-semibold">Periksa kembali isian Anda:</p>
+                        </div>
+                        <ul class="text-xs list-disc list-inside pl-1 space-y-0.5">
+                            @foreach($errors->all() as $error)
+                                <li>{{ $error }}</li>
+                            @endforeach
+                        </ul>
+                    </div>
+                @endif
+
                 @if(session('error'))
                     <div class="flex items-center gap-2 p-3 bg-red-500/10 border border-red-500/20 rounded-lg text-red-500">
                         <span class="material-symbols-outlined text-[18px]">error</span>

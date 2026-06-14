@@ -16,6 +16,17 @@ return Application::configure(basePath: dirname(__DIR__))
         $middleware->alias([
             'role' => \App\Http\Middleware\RoleMiddleware::class,
         ]);
+
+        // Percayai header dari proxy (ngrok / Cloudflare Tunnel) agar Laravel
+        // tahu request sebenarnya HTTPS dan domainnya domain publik, bukan localhost.
+        // Wajib supaya redirect, link, dan cookie sesi tetap benar saat lewat tunnel.
+        $middleware->trustProxies(at: '*', headers:
+            \Illuminate\Http\Request::HEADER_X_FORWARDED_FOR |
+            \Illuminate\Http\Request::HEADER_X_FORWARDED_HOST |
+            \Illuminate\Http\Request::HEADER_X_FORWARDED_PORT |
+            \Illuminate\Http\Request::HEADER_X_FORWARDED_PROTO |
+            \Illuminate\Http\Request::HEADER_X_FORWARDED_AWS_ELB
+        );
     })
     ->withExceptions(function (Exceptions $exceptions) {
         //

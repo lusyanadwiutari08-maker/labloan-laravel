@@ -1,0 +1,11 @@
+{
+  "version": "0.0.1",
+  "configurations": [
+    {
+      "name": "labloan",
+      "runtimeExecutable": "php",
+      "runtimeArgs": ["artisan", "serve", "--port=8130"],
+      "port": 8130
+    }
+  ]
+}
